@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { generateSkill } from '../../lib/skillGen.mjs';
+
+const title = '技名・必殺技メーカー｜中二でかっこいい必殺技ジェネレーター';
+const description = 'RPGやゲームの技名・必殺技を自動生成する無料メーカー。「滅却斬」「Crimson Fang」「終焉の一撃」のような中二心くすぐる技名を、よみがな付きで何度でも。';
+const examples = generateSkill({ mode: 'mix', count: 40, seed: 11 });
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: '技名メーカー', href: '/tools/skill-name' } ];
+const url = new URL('/tools/skill-name', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'技名・必殺技メーカー', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">技名・必殺技メーカー</h1>
+  <p class="post-meta">「滅却斬」「Crimson Fang」「終焉の一撃」——中二な技名をよみがな付きで自動生成。</p>
+  <p>RPGやゲームの<strong>技名・必殺技</strong>を自動生成します。漢字を繋げた<strong>漢字技</strong>、<strong>英語技</strong>、「<strong>○○の〜</strong>」型まで、そのまま使える技名を<strong>よみがな付き</strong>で何度でも作れます。</p>
+
+  <section class="tool" aria-label="技名メーカー">
+    <div class="modes" role="group" aria-label="型を選ぶ">
+      <button class="mode-btn is-on" data-mode="mix">ミックス</button>
+      <button class="mode-btn" data-mode="kanji">漢字技</button>
+      <button class="mode-btn" data-mode="eng">英語技</button>
+      <button class="mode-btn" data-mode="no">○○の〜</button>
+    </div>
+    <button id="gen" class="gen-btn">⚔ 技名を生成する</button>
+    <div id="results" class="results"></div>
+    <div id="favWrap" class="favs" hidden><h2>★ お気に入り</h2><div id="favs" class="results"></div></div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol><li>型を選ぶ（迷ったらミックス）</li><li>「技名を生成する」で候補が一覧表示</li><li>気に入ったら<strong>コピー</strong>／<strong>★保存</strong></li></ol>
+
+  <h2>かっこいい技名の例（一覧）</h2>
+  <table class="dict"><thead><tr><th>技名</th><th>よみ</th><th>型</th></tr></thead>
+    <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.kana}</td><td>{x.note}</td></tr>))}</tbody>
+  </table>
+
+  <h2>よくある質問</h2>
+  <h3>キャラ名や二つ名も作れますか？</h3>
+  <p>はい。<a href="/tools/rpg-name">キャラ名</a>・<a href="/tools/futatsuna">二つ名</a>のジェネレーターもあります。</p>
+
+  <p><a href="/tools">→ 他のジェネレーターを見る</a></p>
+  <Banner label="── 必殺技を決めたら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  import { generateSkill } from '../../lib/skillGen.mjs';
+  const FAV_KEY = 'skillgen_favs'; let mode = 'mix';
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results'), favWrap = $('#favWrap'), favsEl = $('#favs');
+  const loadFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } };
+  const saveFavs = (a) => localStorage.setItem(FAV_KEY, JSON.stringify(a));
+  function card(x, { faved = false } = {}) {
+    const el = document.createElement('div'); el.className = 'name-card cat-' + (x.cat || '');
+    el.innerHTML = `<div class="name-main"></div><div class="name-kana"></div><span class="name-note"></span><div class="card-actions"><button class="copy">コピー</button><button class="fav">${faved ? '★' : '☆'}</button></div>`;
+    el.querySelector('.name-main').textContent = x.name; el.querySelector('.name-kana').textContent = x.kana; el.querySelector('.name-note').textContent = x.note;
+    if (faved) el.querySelector('.fav').classList.add('fav-on');
+    el.querySelector('.copy').addEventListener('click', async (e) => { try { await navigator.clipboard.writeText(x.name); } catch {} const b = e.currentTarget; b.textContent = 'コピー!'; b.classList.add('copied'); setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('copied'); }, 1200); });
+    el.querySelector('.fav').addEventListener('click', (e) => { let favs = loadFavs(); const i = favs.findIndex((f) => f.name === x.name); if (i >= 0) { favs.splice(i, 1); e.currentTarget.textContent = '☆'; e.currentTarget.classList.remove('fav-on'); } else { favs.unshift({ name: x.name, kana: x.kana, note: x.note }); e.currentTarget.textContent = '★'; e.currentTarget.classList.add('fav-on'); } saveFavs(favs); renderFavs(); });
+    return el;
+  }
+  function renderFavs() { const favs = loadFavs(); favWrap.hidden = favs.length === 0; favsEl.innerHTML = ''; favs.forEach((x) => favsEl.appendChild(card(x, { faved: true }))); }
+  function run() { const fn = new Set(loadFavs().map((f) => f.name)); results.innerHTML = ''; generateSkill({ mode, count: 12 }).forEach((x) => results.appendChild(card(x, { faved: fn.has(x.name) }))); }
+  document.querySelectorAll('.mode-btn').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.mode-btn').forEach((x) => x.classList.remove('is-on')); b.classList.add('is-on'); mode = b.dataset.mode; run(); }));
+  $('#gen').addEventListener('click', run); run(); renderFavs();
+</script>

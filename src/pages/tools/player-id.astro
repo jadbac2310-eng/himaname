@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { generateId } from '../../lib/idGen.mjs';
+
+const title = 'ID・プレイヤーネームメーカー｜おしゃれ＆かっこいいゲームID';
+const description = 'ゲームのID・プレイヤーネーム・ユーザー名を自動生成する無料メーカー。「ShadowFox」「void_walker」「˗ˏˋ NovaByte ˎˊ˗」のようなおしゃれ＆かっこいいIDを何度でも。';
+const examples = generateId({ mode: 'mix', count: 40, seed: 19 });
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'IDメーカー', href: '/tools/player-id' } ];
+const url = new URL('/tools/player-id', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'ID・プレイヤーネームメーカー', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">ID・プレイヤーネームメーカー</h1>
+  <p class="post-meta">「ShadowFox」「void_walker」「˗ˏˋ NovaByte ˎˊ˗」——おしゃれ＆かっこいいIDを自動生成。</p>
+  <p>ゲームの<strong>ID・プレイヤーネーム・ユーザー名</strong>を自動生成します。<strong>キャメル</strong>（ShadowFox）、<strong>アンダーバー</strong>（void_walker）、記号で飾る<strong>装飾</strong>、<strong>数字入り</strong>から、おしゃれなIDを何度でも作れます。</p>
+
+  <section class="tool" aria-label="IDメーカー">
+    <div class="modes" role="group" aria-label="型を選ぶ">
+      <button class="mode-btn is-on" data-mode="mix">ミックス</button>
+      <button class="mode-btn" data-mode="camel">キャメル</button>
+      <button class="mode-btn" data-mode="snake">アンダーバー</button>
+      <button class="mode-btn" data-mode="deco">装飾</button>
+      <button class="mode-btn" data-mode="num">数字入り</button>
+    </div>
+    <button id="gen" class="gen-btn">⚔ IDを生成する</button>
+    <div id="results" class="results"></div>
+    <div id="favWrap" class="favs" hidden><h2>★ お気に入り</h2><div id="favs" class="results"></div></div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol><li>型を選ぶ（迷ったらミックス）</li><li>「IDを生成する」で候補が一覧表示</li><li>気に入ったら<strong>コピー</strong>／<strong>★保存</strong></li></ol>
+
+  <h2>おしゃれなIDの例（一覧）</h2>
+  <table class="dict"><thead><tr><th>ID</th><th>読み</th><th>型</th></tr></thead>
+    <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.kana}</td><td>{x.note}</td></tr>))}</tbody>
+  </table>
+
+  <h2>よくある質問</h2>
+  <h3>キャラ名にも使えますか？</h3>
+  <p>はい。より物語性のある名前は<a href="/tools/rpg-name">RPG風かっこいい名前ジェネレーター</a>がおすすめです。</p>
+
+  <p><a href="/tools">→ 他のジェネレーターを見る</a></p>
+  <Banner label="── IDを決めたら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  import { generateId } from '../../lib/idGen.mjs';
+  const FAV_KEY = 'idgen_favs'; let mode = 'mix';
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results'), favWrap = $('#favWrap'), favsEl = $('#favs');
+  const loadFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } };
+  const saveFavs = (a) => localStorage.setItem(FAV_KEY, JSON.stringify(a));
+  function card(x, { faved = false } = {}) {
+    const el = document.createElement('div'); el.className = 'name-card cat-' + (x.cat || '');
+    el.innerHTML = `<div class="name-main"></div><div class="name-kana"></div><span class="name-note"></span><div class="card-actions"><button class="copy">コピー</button><button class="fav">${faved ? '★' : '☆'}</button></div>`;
+    el.querySelector('.name-main').textContent = x.name; el.querySelector('.name-kana').textContent = x.kana; el.querySelector('.name-note').textContent = x.note;
+    if (faved) el.querySelector('.fav').classList.add('fav-on');
+    el.querySelector('.copy').addEventListener('click', async (e) => { try { await navigator.clipboard.writeText(x.name); } catch {} const b = e.currentTarget; b.textContent = 'コピー!'; b.classList.add('copied'); setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('copied'); }, 1200); });
+    el.querySelector('.fav').addEventListener('click', (e) => { let favs = loadFavs(); const i = favs.findIndex((f) => f.name === x.name); if (i >= 0) { favs.splice(i, 1); e.currentTarget.textContent = '☆'; e.currentTarget.classList.remove('fav-on'); } else { favs.unshift({ name: x.name, kana: x.kana, note: x.note }); e.currentTarget.textContent = '★'; e.currentTarget.classList.add('fav-on'); } saveFavs(favs); renderFavs(); });
+    return el;
+  }
+  function renderFavs() { const favs = loadFavs(); favWrap.hidden = favs.length === 0; favsEl.innerHTML = ''; favs.forEach((x) => favsEl.appendChild(card(x, { faved: true }))); }
+  function run() { const fn = new Set(loadFavs().map((f) => f.name)); results.innerHTML = ''; generateId({ mode, count: 12 }).forEach((x) => results.appendChild(card(x, { faved: fn.has(x.name) }))); }
+  document.querySelectorAll('.mode-btn').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.mode-btn').forEach((x) => x.classList.remove('is-on')); b.classList.add('is-on'); mode = b.dataset.mode; run(); }));
+  $('#gen').addEventListener('click', run); run(); renderFavs();
+</script>
