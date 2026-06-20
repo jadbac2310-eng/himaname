@@ -199,10 +199,8 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 /* ガチャ演出 */
 .summon { display: none; text-align: center; padding: 26px 0 10px; }
 .summon.on { display: block; }
-.summon-orb { width: 96px; height: 96px; margin: 0 auto; border-radius: 50%; animation: summonPulse .42s ease-in-out infinite alternate; }
-.summon-orb.R { background: radial-gradient(circle at 35% 30%, #7dd3fc, #1e3a8a); box-shadow: 0 0 34px #38bdf8; }
-.summon-orb.SR { background: radial-gradient(circle at 35% 30%, #e9d5ff, #6d28d9); box-shadow: 0 0 44px #c084fc; }
-.summon-orb.SSR { background: conic-gradient(#fbbf24, #f472b6, #38bdf8, #a855f7, #fbbf24); box-shadow: 0 0 60px #fbbf24; animation: summonPulse .3s ease-in-out infinite alternate; }
+/* 召喚オーブはレア度を示さない中立カラー（ネタバレ防止） */
+.summon-orb { width: 96px; height: 96px; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c7d2fe, #4338ca); box-shadow: 0 0 42px #6366f1; animation: summonPulse .42s ease-in-out infinite alternate; }
 .summon-label { margin-top: 12px; color: #c7cbe0; font-size: 12px; letter-spacing: .35em; }
 @keyframes summonPulse { from { transform: scale(.86); } to { transform: scale(1.14); } }
 

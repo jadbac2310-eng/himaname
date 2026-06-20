@@ -33,7 +33,7 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
       <button id="pull10" class="gen-btn">🎲 10連を引く</button>
     </div>
     <button id="reset" class="gen-btn secondary" style="margin-top:10px">リセット</button>
-    <div id="summon" class="summon"><div class="summon-orb R"></div><div class="summon-label">✦ 召喚中 ✦</div></div>
+    <div id="summon" class="summon"><div class="summon-orb"></div><div class="summon-label">✦ 召喚中 ✦</div></div>
     <div id="results" class="gacha-grid"></div>
     <div id="celebrate" class="gacha-celebrate"></div>
     <div id="tally" class="gacha-tally"></div>
@@ -78,7 +78,9 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     });
     const ssrThis = items.filter((x) => x === 'SSR').length;
     const srThis = items.filter((x) => x === 'SR').length;
+    // 実測率・お祝いは開封が出揃ってから更新（ネタバレ防止）
     setTimeout(() => {
+      updateTally();
       celebrate.textContent = ssrThis ? `✦ SSR ×${ssrThis} 出ました！ ✦` : (srThis >= 3 ? `SR ×${srThis}！好調！` : '');
     }, items.length * 80 + 150);
   }
@@ -86,10 +88,7 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     if (busy) return; busy = true; celebrate.textContent = ''; results.innerHTML = '';
     const items = [];
     for (let i = 0; i < count; i++) { const g = pullOne(); items.push(g); n++; if (g === 'SSR') ssrN++; else if (g === 'SR') srN++; }
-    const best = items.reduce((b, x) => (RANK[x] > RANK[b] ? x : b), 'R');
-    summonOrb.className = 'summon-orb ' + best;
-    summon.classList.add('on');
-    updateTally();
+    summon.classList.add('on'); // 中立オーブ（レア度を示さない）
     setTimeout(() => { summon.classList.remove('on'); reveal(items); busy = false; }, 760);
   }
   document.querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => { const [a, c] = b.dataset.p.split(','); $('#ssr').value = a; $('#sr').value = c; }));
