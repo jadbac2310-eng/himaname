@@ -28,7 +28,9 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
       <button id="pull10" class="gen-btn">🎲 10連を引く</button>
     </div>
     <button id="reset" class="gen-btn secondary" style="margin-top:10px">リセット</button>
+    <div id="summon" class="summon"><div class="summon-orb R"></div><div class="summon-label">✦ 召喚中 ✦</div></div>
     <div id="results" class="gacha-grid"></div>
+    <div id="celebrate" class="gacha-celebrate"></div>
     <div id="tally" class="gacha-tally"></div>
   </section>
 
@@ -45,8 +47,10 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
 
 <script>
   const $ = (s) => document.querySelector(s);
-  const results = $('#results'), tally = $('#tally');
-  let n = 0, ssrN = 0, srN = 0;
+  const results = $('#results'), tally = $('#tally'), celebrate = $('#celebrate');
+  const summon = $('#summon'), summonOrb = summon.querySelector('.summon-orb');
+  const RANK = { R: 0, SR: 1, SSR: 2 };
+  let n = 0, ssrN = 0, srN = 0, busy = false;
   function pullOne() {
     const ssr = parseFloat($('#ssr').value) || 0;
     const sr = parseFloat($('#sr').value) || 0;
@@ -55,24 +59,35 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     if (r < ssr + sr) return 'SR';
     return 'R';
   }
-  function render(items) {
-    results.innerHTML = '';
-    items.forEach((g, i) => {
-      const el = document.createElement('span');
-      el.className = 'gacha-chip ' + g;
-      el.textContent = g;
-      el.style.animationDelay = (i * 0.04) + 's';
-      results.appendChild(el);
-    });
+  function updateTally() {
     const rate = n ? (ssrN / n * 100).toFixed(2) : '0.00';
     tally.innerHTML = `累計 <b>${n}</b> 連 ｜ SSR <b>${ssrN}</b> ｜ SR ${srN} ｜ 実測SSR率 <b>${rate}%</b>`;
   }
+  function reveal(items) {
+    results.innerHTML = '';
+    items.forEach((g, i) => {
+      const el = document.createElement('div');
+      el.className = 'orb ' + g; el.textContent = g;
+      el.style.animationDelay = (i * 0.08) + 's';
+      results.appendChild(el);
+    });
+    const ssrThis = items.filter((x) => x === 'SSR').length;
+    const srThis = items.filter((x) => x === 'SR').length;
+    setTimeout(() => {
+      celebrate.textContent = ssrThis ? `✦ SSR ×${ssrThis} 出ました！ ✦` : (srThis >= 3 ? `SR ×${srThis}！好調！` : '');
+    }, items.length * 80 + 150);
+  }
   function pull(count) {
+    if (busy) return; busy = true; celebrate.textContent = ''; results.innerHTML = '';
     const items = [];
     for (let i = 0; i < count; i++) { const g = pullOne(); items.push(g); n++; if (g === 'SSR') ssrN++; else if (g === 'SR') srN++; }
-    render(items);
+    const best = items.reduce((b, x) => (RANK[x] > RANK[b] ? x : b), 'R');
+    summonOrb.className = 'summon-orb ' + best;
+    summon.classList.add('on');
+    updateTally();
+    setTimeout(() => { summon.classList.remove('on'); reveal(items); busy = false; }, 760);
   }
   $('#pull1').addEventListener('click', () => pull(1));
   $('#pull10').addEventListener('click', () => pull(10));
-  $('#reset').addEventListener('click', () => { n = ssrN = srN = 0; results.innerHTML = ''; tally.innerHTML = ''; });
+  $('#reset').addEventListener('click', () => { n = ssrN = srN = 0; results.innerHTML = ''; tally.innerHTML = ''; celebrate.textContent = ''; });
 </script>

@@ -196,15 +196,31 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 .tool .row2 > * { flex: 1; }
 .gen-btn.secondary { background: rgba(255,255,255,.06); box-shadow: none; border: 1px solid rgba(148,163,184,.3); }
 
-/* ガチャ */
-.gacha-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.gacha-chip { padding: 8px 10px; border-radius: 9px; font-weight: 800; font-size: 14px; border: 1px solid; animation: pop .25s ease; }
-.gacha-chip.SSR { color: #fde68a; background: rgba(251,191,36,.16); border-color: rgba(251,191,36,.5); box-shadow: 0 0 14px rgba(251,191,36,.4); }
-.gacha-chip.SR { color: #d8b4fe; background: rgba(192,132,252,.15); border-color: rgba(192,132,252,.45); }
-.gacha-chip.R { color: #93c5fd; background: rgba(56,189,248,.12); border-color: rgba(56,189,248,.4); }
-.gacha-tally { margin-top: 16px; color: #c7cbe0; font-size: 14px; line-height: 1.9; }
+/* ガチャ演出 */
+.summon { display: none; text-align: center; padding: 26px 0 10px; }
+.summon.on { display: block; }
+.summon-orb { width: 96px; height: 96px; margin: 0 auto; border-radius: 50%; animation: summonPulse .42s ease-in-out infinite alternate; }
+.summon-orb.R { background: radial-gradient(circle at 35% 30%, #7dd3fc, #1e3a8a); box-shadow: 0 0 34px #38bdf8; }
+.summon-orb.SR { background: radial-gradient(circle at 35% 30%, #e9d5ff, #6d28d9); box-shadow: 0 0 44px #c084fc; }
+.summon-orb.SSR { background: conic-gradient(#fbbf24, #f472b6, #38bdf8, #a855f7, #fbbf24); box-shadow: 0 0 60px #fbbf24; animation: summonPulse .3s ease-in-out infinite alternate; }
+.summon-label { margin-top: 12px; color: #c7cbe0; font-size: 12px; letter-spacing: .35em; }
+@keyframes summonPulse { from { transform: scale(.86); } to { transform: scale(1.14); } }
+
+.gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
+.orb { aspect-ratio: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; position: relative; opacity: 0; transform: scale(.4) rotate(-8deg); animation: orbIn .34s cubic-bezier(.2,1.3,.4,1) forwards; }
+.orb.R { color: #dbeafe; background: linear-gradient(145deg, #1e40af, #0b1430); border: 1px solid #38bdf8; }
+.orb.SR { color: #f3e8ff; background: linear-gradient(145deg, #6d28d9, #2e1065); border: 1px solid #c084fc; box-shadow: 0 0 16px rgba(192,132,252,.55); }
+.orb.SSR { color: #fff7ed; background: linear-gradient(145deg, #d97706, #7c2d12); border: 1px solid #fde68a; animation: orbIn .34s cubic-bezier(.2,1.3,.4,1) forwards, ssrShine 1.5s ease-in-out infinite; }
+.orb.SSR::after { content: '✦'; position: absolute; top: 3px; right: 5px; font-size: 11px; color: #fde68a; }
+@keyframes orbIn { to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes ssrShine { 0%,100% { box-shadow: 0 0 16px rgba(251,191,36,.55); } 50% { box-shadow: 0 0 34px rgba(251,191,36,1); } }
+
+.gacha-celebrate { text-align: center; margin-top: 14px; font-weight: 900; font-size: 1.2rem; min-height: 1.4em;
+  background: linear-gradient(90deg,#fbbf24,#f472b6,#38bdf8,#fbbf24); background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 2s linear infinite; }
+@keyframes shimmer { to { background-position: 200% center; } }
+.gacha-tally { margin-top: 12px; color: #c7cbe0; font-size: 14px; line-height: 1.9; text-align: center; }
 .gacha-tally b { color: #fde68a; }
-@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* おみくじ */
 .omikuji-box { text-align: center; padding: 8px 0; }
