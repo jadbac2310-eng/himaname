@@ -236,6 +236,13 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 .wheel-result { text-align: center; font-size: 1.4rem; font-weight: 800; margin-top: 10px; min-height: 1.6em;
   background: linear-gradient(180deg,#fff,#c7d2fe); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
+/* ステッパー・ミニ入力（あみだくじ等） */
+.stepper { display: inline-flex; align-items: center; gap: 12px; }
+.stepper button { width: 46px; height: 46px; border-radius: 11px; border: 1px solid rgba(148,163,184,.3); background: rgba(255,255,255,.06); color: #e7e9f5; font-size: 22px; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.stepper .val { font-size: 19px; font-weight: 800; min-width: 2.2em; text-align: center; }
+.mini-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 8px; }
+.mini-inputs input { padding: 11px; }
+
 /* あみだくじ・文字装飾 */
 .amida-wrap { overflow-x: auto; margin: 14px 0; }
 .fancy-row { display: flex; gap: 8px; align-items: center; border: 1px solid rgba(148,163,184,.16); border-radius: 10px; padding: 10px 12px; margin-top: 9px; background: rgba(255,255,255,.03); }

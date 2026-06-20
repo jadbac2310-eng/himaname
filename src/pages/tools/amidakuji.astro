@@ -4,8 +4,8 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Banner from '../../components/Banner.astro';
 import { SITE } from '../../consts';
 
-const title = 'あみだくじメーカー｜名前と結果を入れて作る無料あみだくじ';
-const description = '参加者と結果を入れるだけで作れる無料のあみだくじメーカー。順番決め・係決め・席替え・くじ引きに。線をたどって結果が見える、スマホ対応のオンラインあみだくじ。';
+const title = 'あみだくじメーカー｜人数を選ぶだけ！簡単オンラインあみだくじ';
+const description = '人数を選んで作れる簡単な無料あみだくじメーカー。順番決め・係決め・当たりはずれに。名前をタップすると線をたどって結果が光る、スマホ対応のオンラインあみだくじ。';
 const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'あみだくじメーカー', href: '/tools/amidakuji' } ];
 const url = new URL('/tools/amidakuji', SITE.url).href;
 const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'あみだくじメーカー', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
@@ -14,20 +14,37 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
 <BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
   <Breadcrumbs items={crumbs} />
   <h1 class="post-title">あみだくじメーカー</h1>
-  <p class="post-meta">名前と結果を入れて作る、線をたどれるオンラインあみだくじ。</p>
-  <p>参加者と結果を入れるだけで<strong>あみだくじ</strong>が完成します。名前をタップすると線をたどって結果が光ります。順番決め・係決め・席替えに。</p>
+  <p class="post-meta">人数を選ぶだけ。順番決め・係決め・当たりはずれに。</p>
+  <p>人数を選ぶだけで<strong>あみだくじ</strong>が作れます。名前をタップすると線をたどって結果が光ります。順番決め・係決め・席替えに。</p>
 
   <section class="tool" aria-label="あみだくじ">
-    <div class="row2">
-      <div class="field"><label>参加者（1行に1つ）</label><textarea id="names">あい
-ゆう
-けん
-みく</textarea></div>
-      <div class="field"><label>結果（1行に1つ）</label><textarea id="prizes">当たり
-はずれ
-はずれ
-はずれ</textarea></div>
+    <div class="field">
+      <label>人数</label>
+      <div class="stepper"><button id="minus" type="button">−</button><span class="val" id="cnt">4</span><button id="plus" type="button">＋</button></div>
     </div>
+
+    <div class="field">
+      <label>参加者の名前（空欄でもOK）</label>
+      <div id="names" class="mini-inputs"></div>
+    </div>
+
+    <div class="field">
+      <label>結果のタイプ</label>
+      <div class="modes" role="group">
+        <button class="mode-btn is-on" data-rmode="order" type="button">順番（1番〜）</button>
+        <button class="mode-btn" data-rmode="win" type="button">当たり / はずれ</button>
+        <button class="mode-btn" data-rmode="free" type="button">自由に入力</button>
+      </div>
+      <div id="winRow" class="field" style="margin-top:12px" hidden>
+        <label>当たりの数</label>
+        <div class="stepper"><button id="wminus" type="button">−</button><span class="val" id="wcnt">1</span><button id="wplus" type="button">＋</button></div>
+      </div>
+      <div id="freeRow" class="field" style="margin-top:12px" hidden>
+        <label>結果（各欄に入力）</label>
+        <div id="prizes" class="mini-inputs"></div>
+      </div>
+    </div>
+
     <button id="make" class="gen-btn">🪜 あみだくじを作る</button>
     <div class="amida-wrap"><svg id="ladder" viewBox="0 0 320 360" style="width:100%;height:auto"></svg></div>
     <div id="result" class="gacha-tally"></div>
@@ -36,7 +53,7 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   <Banner />
 
   <h2>使い方</h2>
-  <ol><li>参加者と結果を同じ数だけ入力</li><li>「あみだくじを作る」を押す</li><li>上の名前をタップすると経路と結果が光ります</li></ol>
+  <ol><li>人数を選ぶ</li><li>名前を入力（空欄なら「プレイヤー1」等が入ります）</li><li>結果タイプを選んで「作る」</li><li>名前をタップすると経路と結果が光ります</li></ol>
   <p><a href="/tools">→ 他のツールを見る</a></p>
   <Banner label="── 役割が決まったら、ネコの大バトルへ ──" />
 </BaseLayout>
@@ -45,31 +62,40 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   const NS = 'http://www.w3.org/2000/svg';
   const $ = (s) => document.querySelector(s);
   const svg = $('#ladder');
-  const lines = (id) => $(id).value.split('\n').map((s) => s.trim()).filter(Boolean);
+  let count = 4, rmode = 'order', winCount = 1;
   let X = [], yTop = 40, yBot = 320, rungs = [], rows = 0, names = [], prizes = [];
 
+  function renderNameInputs() {
+    const box = $('#names'); const old = [...box.querySelectorAll('input')].map((i) => i.value);
+    box.innerHTML = '';
+    for (let i = 0; i < count; i++) { const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'プレイヤー' + (i + 1); inp.value = old[i] || ''; box.appendChild(inp); }
+  }
+  function renderPrizeInputs() {
+    const box = $('#prizes'); const old = [...box.querySelectorAll('input')].map((i) => i.value);
+    box.innerHTML = '';
+    for (let i = 0; i < count; i++) { const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = '結果' + (i + 1); inp.value = old[i] || ''; box.appendChild(inp); }
+  }
+  function getNames() { return [...$('#names').querySelectorAll('input')].map((inp, i) => inp.value.trim() || ('プレイヤー' + (i + 1))); }
+  function getPrizes() {
+    if (rmode === 'order') return Array.from({ length: count }, (_, i) => (i + 1) + '番');
+    if (rmode === 'win') return Array.from({ length: count }, (_, i) => (i < winCount ? '当たり' : 'はずれ'));
+    return [...$('#prizes').querySelectorAll('input')].map((inp, i) => inp.value.trim() || ('結果' + (i + 1)));
+  }
+
   function build() {
-    names = lines('#names'); prizes = lines('#prizes');
-    const n = names.length;
-    $('#result').innerHTML = '';
-    svg.innerHTML = '';
-    if (n < 2) { svg.innerHTML = '<text x="160" y="180" text-anchor="middle" fill="#9aa3c0" font-size="12">参加者を2人以上</text>'; return; }
-    if (prizes.length !== n) { svg.innerHTML = `<text x="160" y="180" text-anchor="middle" fill="#f87171" font-size="12">結果の数を参加者と同じ(${n}個)にしてください</text>`; return; }
+    names = getNames(); prizes = getPrizes(); const n = count;
+    $('#result').innerHTML = ''; svg.innerHTML = '';
     const W = 320, pad = 36; X = []; for (let c = 0; c < n; c++) X.push(pad + (W - 2 * pad) * c / (n - 1));
     rows = Math.max(8, n * 3); rungs = [];
     for (let row = 0; row < rows; row++) for (let c = 0; c < n - 1; c++) {
       if (Math.random() < 0.42 && !rungs.some((r) => r.row === row && (r.col === c - 1 || r.col === c + 1))) rungs.push({ row, col: c });
     }
     const yOf = (row) => yTop + (yBot - yTop) * (row + 1) / (rows + 1);
-    // 縦線
     X.forEach((x) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('x1', x); l.setAttribute('y1', yTop); l.setAttribute('x2', x); l.setAttribute('y2', yBot); l.setAttribute('stroke', 'rgba(148,163,184,.5)'); l.setAttribute('stroke-width', '2'); svg.appendChild(l); });
-    // 横線
     rungs.forEach((r) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('x1', X[r.col]); l.setAttribute('y1', yOf(r.row)); l.setAttribute('x2', X[r.col + 1]); l.setAttribute('y2', yOf(r.row)); l.setAttribute('stroke', 'rgba(148,163,184,.55)'); l.setAttribute('stroke-width', '2'); svg.appendChild(l); });
-    // ラベル
-    names.forEach((nm, c) => { const t = document.createElementNS(NS, 'text'); t.setAttribute('x', X[c]); t.setAttribute('y', yTop - 12); t.setAttribute('fill', '#e7e9f5'); t.setAttribute('font-size', '12'); t.setAttribute('font-weight', '700'); t.setAttribute('text-anchor', 'middle'); t.style.cursor = 'pointer'; t.textContent = nm.length > 5 ? nm.slice(0, 5) : nm; t.addEventListener('click', () => trace(c)); svg.appendChild(t); });
+    names.forEach((nm, c) => { const t = document.createElementNS(NS, 'text'); t.setAttribute('x', X[c]); t.setAttribute('y', yTop - 12); t.setAttribute('fill', '#e7e9f5'); t.setAttribute('font-size', '11'); t.setAttribute('font-weight', '700'); t.setAttribute('text-anchor', 'middle'); t.style.cursor = 'pointer'; t.textContent = nm.length > 5 ? nm.slice(0, 5) : nm; t.addEventListener('click', () => trace(c)); svg.appendChild(t); });
     prizes.forEach((p, c) => { const t = document.createElementNS(NS, 'text'); t.setAttribute('x', X[c]); t.setAttribute('y', yBot + 22); t.setAttribute('fill', '#9aa3c0'); t.setAttribute('font-size', '11'); t.setAttribute('text-anchor', 'middle'); t.textContent = p.length > 5 ? p.slice(0, 5) : p; svg.appendChild(t); });
   }
-  function endOf(start) { let pos = start; for (let row = 0; row < rows; row++) { if (rungs.some((r) => r.row === row && r.col === pos)) pos++; else if (rungs.some((r) => r.row === row && r.col === pos - 1)) pos--; } return pos; }
   function trace(start) {
     svg.querySelectorAll('.trace').forEach((e) => e.remove());
     const yOf = (row) => yTop + (yBot - yTop) * (row + 1) / (rows + 1);
@@ -79,6 +105,16 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     const pl = document.createElementNS(NS, 'polyline'); pl.setAttribute('class', 'trace'); pl.setAttribute('points', pts.map((p) => p.join(',')).join(' ')); pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', '#fbbf24'); pl.setAttribute('stroke-width', '3'); pl.setAttribute('stroke-linejoin', 'round'); svg.appendChild(pl);
     $('#result').innerHTML = `<b>${names[start]}</b> → <b>${prizes[pos]}</b>`;
   }
+
+  function setCount(v) { count = Math.max(2, Math.min(10, v)); $('#cnt').textContent = count; if (winCount > count - 1) { winCount = Math.max(1, count - 1); $('#wcnt').textContent = winCount; } renderNameInputs(); renderPrizeInputs(); }
+  $('#minus').addEventListener('click', () => setCount(count - 1));
+  $('#plus').addEventListener('click', () => setCount(count + 1));
+  $('#wminus').addEventListener('click', () => { winCount = Math.max(1, winCount - 1); $('#wcnt').textContent = winCount; });
+  $('#wplus').addEventListener('click', () => { winCount = Math.min(count - 1, winCount + 1); $('#wcnt').textContent = winCount; });
+  document.querySelectorAll('[data-rmode]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-rmode]').forEach((x) => x.classList.remove('is-on')); b.classList.add('is-on');
+    rmode = b.dataset.rmode; $('#winRow').hidden = rmode !== 'win'; $('#freeRow').hidden = rmode !== 'free';
+  }));
   $('#make').addEventListener('click', build);
-  build();
+  setCount(4);
 </script>
