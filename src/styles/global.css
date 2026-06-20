@@ -205,7 +205,9 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 @keyframes summonPulse { from { transform: scale(.86); } to { transform: scale(1.14); } }
 
 .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
-.orb { aspect-ratio: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; position: relative; opacity: 0; transform: scale(.4) rotate(-8deg); animation: orbIn .34s cubic-bezier(.2,1.3,.4,1) forwards; }
+.orb { aspect-ratio: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; position: relative; overflow: hidden; padding: 3px; opacity: 0; transform: scale(.4) rotate(-8deg); animation: orbIn .34s cubic-bezier(.2,1.3,.4,1) forwards; }
+.orb img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.45)); }
+.orb-rank { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 10.5px; font-weight: 900; letter-spacing: .06em; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 .orb.R { color: #dbeafe; background: linear-gradient(145deg, #1e40af, #0b1430); border: 1px solid #38bdf8; }
 .orb.SR { color: #f3e8ff; background: linear-gradient(145deg, #6d28d9, #2e1065); border: 1px solid #c084fc; box-shadow: 0 0 16px rgba(192,132,252,.55); }
 .orb.SSR { color: #fff7ed; background: linear-gradient(145deg, #d97706, #7c2d12); border: 1px solid #fde68a; animation: orbIn .34s cubic-bezier(.2,1.3,.4,1) forwards, ssrShine 1.5s ease-in-out infinite; }

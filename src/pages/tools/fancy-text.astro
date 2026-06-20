@@ -12,8 +12,17 @@ const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/
 const url = new URL('/tools/fancy-text', SITE.url).href;
 const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'文字装飾・フォント変換', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
 const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+const faq = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: [
+    ['変換した文字はコピペして使えますか？', 'はい。各スタイルの「コピー」ボタンでコピーし、ゲーム名・SNS・Discordなどにそのまま貼り付けできます。'],
+    ['Discordの名前やチャンネルにも使えますか？', '使えます。Discordのユーザー名・サーバー名・チャンネル名にコピペできます（一部の特殊文字は表示できない場合があります）。'],
+    ['かわいい文字やおしゃれな文字に変換できますか？', '筆記体・丸囲み・二重線など13種類のスタイルから、かわいい・おしゃれな見た目に変換できます。'],
+    ['日本語（ひらがな・漢字）も変換できますか？', '変換対象は英数字です。日本語はそのまま表示されます。'],
+  ].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+};
 ---
-<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb, faq]} bodyClass="theme-dark">
   <Breadcrumbs items={crumbs} />
   <h1 class="post-title">文字装飾・フォント変換</h1>
   <p class="post-meta">入力した文字を𝓯𝓪𝓷𝓬𝔂なおしゃれフォントに変換。名前・ID・SNSにコピペ。</p>
@@ -35,6 +44,21 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   <table class="dict"><thead><tr><th>スタイル</th><th>変換後</th></tr></thead>
     <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.out}</td></tr>))}</tbody>
   </table>
+
+  <h2>こんな使い方に</h2>
+  <ul>
+    <li><strong>ゲームの名前・ID・ギルド名</strong>をおしゃれに装飾</li>
+    <li><strong>Discord</strong>のユーザー名・サーバー名・チャンネル名のコピペ装飾</li>
+    <li>X（Twitter）・Instagramなど<strong>SNSのプロフィール</strong>をかわいく</li>
+  </ul>
+
+  <h2>よくある質問</h2>
+  <h3>変換した文字はコピペして使えますか？</h3>
+  <p>はい。各スタイルの「コピー」でコピーし、名前・SNS・Discordにそのまま貼り付けできます。</p>
+  <h3>Discordの名前やチャンネルにも使えますか？</h3>
+  <p>使えます。一部の特殊な文字は環境により表示できない場合があるので、貼り付け先で確認してください。</p>
+  <h3>かわいい・おしゃれな文字にできますか？</h3>
+  <p>筆記体・丸囲み・二重線など13種類から、かわいい／おしゃれな見た目に変換できます。</p>
 
   <p><a href="/tools/rpg-name">→ 装飾する名前を作る（名前ジェネレーター）</a> ／ <a href="/tools">他のツール</a></p>
   <Banner label="── 名前を飾ったら、ネコの大バトルへ ──" />

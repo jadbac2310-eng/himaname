@@ -4,14 +4,22 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Banner from '../../components/Banner.astro';
 import { SITE } from '../../consts';
 
-const title = 'ガチャシミュレーター｜排出率を設定して引ける無料ガチャ確率体験';
-const description = 'ソシャゲのガチャを排出率を設定して引けるガチャシミュレーター。SSR/SR/Rの確率を入れて1回・10連を回し、SSR排出率や天井までの体感を無料でシミュレーション。';
+const title = 'ガチャシミュレーター｜排出率・確率を計算できる無料ガチャ確率シミュレーター';
+const description = 'ソシャゲのガチャ排出率を設定して引ける無料ガチャシミュレーター。SSR/SR/Rの確率を入れて1回・10連を回し、SSR排出率や確率計算（n連でSSRが出る確率）を体感。モンスターが排出される演出付き。';
+const faq = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: [
+    ['ガチャでSSRが出る確率はどう計算しますか？', 'n回引いて少なくとも1体SSRが出る確率は「1 −（1 − SSR排出率）のn乗」で計算できます。例: SSR3%で100連なら約95%です。'],
+    ['実際のゲームの結果に影響しますか？', 'いいえ。確率を体感するためのシミュレーターで、実際のゲームとは無関係です。'],
+    ['排出率は変えられますか？', 'はい。SSR・SRの排出率を自由に入力できます。プリセット（標準/渋め/甘め）もあります。'],
+  ].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+};
 const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'ガチャシミュレーター', href: '/tools/gacha' } ];
 const url = new URL('/tools/gacha', SITE.url).href;
 const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'ガチャシミュレーター', url, applicationCategory:'GameUtilityApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
 const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
 ---
-<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb, faq]} bodyClass="theme-dark">
   <Breadcrumbs items={crumbs} />
   <h1 class="post-title">ガチャシミュレーター</h1>
   <p class="post-meta">排出率を設定して回せる無料ガチャ。SSRの出やすさ・天井までの体感をシミュレーション。</p>
@@ -43,9 +51,19 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
 
   <h2>使い方</h2>
   <ol><li>SSR・SRの排出率を入力（例: SSR 3%・SR 12%）</li><li>「1回引く」「10連を引く」を押す</li><li>累計の排出数とSSR排出率が下に表示されます</li></ol>
+
+  <h2>ガチャ確率の計算方法</h2>
+  <p>「n連で少なくとも1体SSRが出る確率」は次の式で計算できます。</p>
+  <blockquote>確率 = 1 −（1 − SSR排出率）<sup>n</sup></blockquote>
+  <p>例えば <strong>SSR排出率3%</strong> のガチャでは、100連で約 <strong>95.2%</strong>、30連で約 <strong>60%</strong>。「思ったより出ない」と感じるのはこのためです。このシミュレーターを回すと、計算上の確率と実際の引き（実測SSR率）のズレを体感できます。</p>
+
   <h2>よくある質問</h2>
+  <h3>ガチャでSSRが出る確率はどう計算しますか？</h3>
+  <p>n回引いて少なくとも1体SSRが出る確率は「1 −（1 − SSR排出率）のn乗」で計算します。SSR3%・100連なら約95%です。</p>
   <h3>実際のゲームの結果に影響しますか？</h3>
-  <p>いいえ。これは確率を体感するためのシミュレーターで、実際のゲームとは無関係です。</p>
+  <p>いいえ。確率を体感するためのシミュレーターで、実際のゲームとは無関係です。</p>
+  <h3>排出率は変えられますか？</h3>
+  <p>はい。SSR・SRの排出率を自由に入力でき、プリセット（標準/渋め/甘め）もあります。</p>
   <p><a href="/tools">→ 他のツールを見る</a></p>
   <Banner label="── 神引きの快感を、ネコの大バトルで ──" />
 </BaseLayout>
@@ -55,6 +73,11 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   const results = $('#results'), tally = $('#tally'), celebrate = $('#celebrate');
   const summon = $('#summon'), summonOrb = summon.querySelector('.summon-orb');
   const RANK = { R: 0, SR: 1, SSR: 2 };
+  const MONSTERS = {
+    R: ['r-slime', 'r-goblin', 'r-bat'],
+    SR: ['sr-wolf', 'sr-eagle', 'sr-golem'],
+    SSR: ['ssr-dragon', 'ssr-phoenix', 'ssr-lion'],
+  };
   let n = 0, ssrN = 0, srN = 0, busy = false;
   function pullOne() {
     const ssr = parseFloat($('#ssr').value) || 0;
@@ -72,7 +95,11 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     results.innerHTML = '';
     items.forEach((g, i) => {
       const el = document.createElement('div');
-      el.className = 'orb ' + g; el.textContent = g;
+      el.className = 'orb ' + g;
+      const pool = MONSTERS[g]; const mon = pool[Math.floor(Math.random() * pool.length)];
+      const img = document.createElement('img'); img.src = `/images/gacha/${mon}.webp`; img.alt = g + ' モンスター'; img.loading = 'lazy';
+      const rank = document.createElement('span'); rank.className = 'orb-rank'; rank.textContent = g;
+      el.append(img, rank);
       el.style.animationDelay = (i * 0.08) + 's';
       results.appendChild(el);
     });

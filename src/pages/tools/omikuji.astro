@@ -4,14 +4,22 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Banner from '../../components/Banner.astro';
 import { SITE } from '../../consts';
 
-const title = 'オンラインおみくじ｜無料で引けるデジタルおみくじ（運勢・恋愛・金運）';
-const description = 'タップするだけで引ける無料のオンラインおみくじ。大吉〜大凶の運勢に加え、恋愛・仕事・金運・健康のメッセージとラッキーアイテムを表示。暇つぶしや今日の運試しに。';
+const title = 'おみくじ 無料｜オンラインで引けるデジタルおみくじ（運勢・恋愛・金運占い）';
+const description = '無料でタップするだけで引けるオンラインおみくじ。大吉〜大凶の運勢に加え、恋愛・仕事・金運・健康のメッセージとラッキーアイテムを表示。今日の運勢占いや暇つぶしに、何回でも無料で。';
+const faq = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: [
+    ['おみくじは無料で引けますか？', 'はい、完全無料で何度でも引けます。会員登録も不要です。'],
+    ['今日の運勢を占えますか？', '大吉〜大凶の運勢に加え、恋愛・仕事・金運・健康のひとことアドバイスが表示されます。'],
+    ['凶や大凶が出たらどうすればいい？', 'おみくじは戒め。書かれた助言を意識して行動すれば運は開けます。引き直しも自由です。'],
+  ].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+};
 const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'オンラインおみくじ', href: '/tools/omikuji' } ];
 const url = new URL('/tools/omikuji', SITE.url).href;
 const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'オンラインおみくじ', url, applicationCategory:'GameUtilityApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
 const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
 ---
-<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb, faq]} bodyClass="theme-dark">
   <Breadcrumbs items={crumbs} />
   <h1 class="post-title">オンラインおみくじ</h1>
   <p class="post-meta">タップするだけ。大吉〜大凶の運勢＋恋愛・金運メッセージとラッキーアイテムを無料で。</p>
@@ -31,8 +39,12 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   <h2>運勢の順番</h2>
   <p>大吉 ＞ 中吉 ＞ 小吉 ＞ 吉 ＞ 末吉 ＞ 凶 ＞ 大凶 の順です。凶が出ても、行動次第で運は開けます。</p>
   <h2>よくある質問</h2>
-  <h3>何回でも引けますか？</h3>
-  <p>はい、無料で何度でも引けます。暇つぶしや友達との運試しにどうぞ。</p>
+  <h3>おみくじは無料で引けますか？</h3>
+  <p>はい、完全無料で何度でも引けます。会員登録も不要、スマホでそのまま遊べます。</p>
+  <h3>今日の運勢や恋愛運を占えますか？</h3>
+  <p>運勢（大吉〜大凶）に加え、恋愛・仕事・金運・健康のひとことアドバイスとラッキーアイテムが表示されます。今日の運勢占いにどうぞ。</p>
+  <h3>凶や大凶が出たらどうすればいい？</h3>
+  <p>おみくじは戒め。書かれた助言を意識して行動すれば運は開けます。引き直しも自由です。</p>
   <p><a href="/tools">→ 他のツールを見る</a></p>
   <Banner label="── 運試しのあとは、ネコの大バトルへ ──" />
 </BaseLayout>
