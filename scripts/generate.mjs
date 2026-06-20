@@ -177,7 +177,12 @@ async function main() {
   // バナーは早め（全体の約1/3地点・導入を読み終えた直後）に挿入。上部・下部バナーはレイアウト側で別途表示。
   const pos = Math.min(blocks.length, Math.max(3, Math.floor(blocks.length / 3)));
   blocks.splice(pos, 0, bannerMd);
-  const body = blocks.join('\n\n');
+  let body = blocks.join('\n\n');
+  // 記事 → ツールへの内部リンク（クラスタ別）。サイロ化防止＋送客
+  const toolLinks = cluster === 'ネーミング系'
+    ? [['かっこいい名前ジェネレーター', '/tools/rpg-name'], ['二つ名ジェネレーター', '/tools/futatsuna'], ['ギルド名メーカー', '/tools/guild-name']]
+    : [['オンラインおみくじ', '/tools/omikuji'], ['ガチャシミュレーター', '/tools/gacha'], ['かっこいい名前ジェネレーター', '/tools/rpg-name']];
+  body += '\n\n---\n\n**🎮 あわせて使いたい無料ツール**\n\n' + toolLinks.map(([t, h]) => `- [${t}](${h})`).join('\n') + '\n';
 
   // frontmatter
   const today = new Date().toISOString().slice(0, 10);
