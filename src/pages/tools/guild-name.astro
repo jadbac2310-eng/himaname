@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { generateGuild } from '../../lib/guildGen.mjs';
+
+const title = 'かっこいいギルド名メーカー｜チーム名・クラン名を英語＆ラテン語で自動生成';
+const description =
+  'RPGやオンラインゲームのギルド名・チーム名・クラン名を自動生成する無料メーカー。「The 〇〇」の称号型、英語の合成語、ラテン語の標語まで、カナ読みと意味つきでかっこいい名前を量産。';
+
+const examples = generateGuild({ mode: 'mix', count: 40, seed: 3 });
+
+const crumbs = [
+  { name: 'ホーム', href: '/' },
+  { name: 'ツール', href: '/tools' },
+  { name: 'ギルド名メーカー', href: '/tools/guild-name' },
+];
+const url = new URL('/tools/guild-name', SITE.url).href;
+const webApp = {
+  '@context': 'https://schema.org', '@type': 'WebApplication',
+  name: 'かっこいいギルド名メーカー', url,
+  applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': `${SITE.url}/#organization` },
+};
+const breadcrumb = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.href, SITE.url).href })),
+};
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]}>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">かっこいいギルド名メーカー</h1>
+  <p class="post-meta">ギルド名・チーム名・クラン名を、英語＆ラテン語でかっこよく自動生成。カナ読み・意味つき。</p>
+
+  <p>
+    オンラインゲームの<strong>ギルド名・チーム名・クラン名</strong>を自動生成します。
+    「The 〇〇」の<strong>称号型</strong>、「〇〇 of 〇〇」の<strong>叙事型</strong>、
+    英語の<strong>合成語</strong>、そして<strong>ラテン語の標語</strong>まで——
+    そのまま使える本格的な名前を、<strong>カナ読みと意味つき</strong>で何度でも作れます。
+  </p>
+
+  <section class="tool" aria-label="ギルド名メーカー">
+    <div class="modes" role="group" aria-label="型を選ぶ">
+      <button class="mode-btn is-on" data-mode="mix">ミックス</button>
+      <button class="mode-btn" data-mode="the">称号型（The〜）</button>
+      <button class="mode-btn" data-mode="of">叙事型（of〜）</button>
+      <button class="mode-btn" data-mode="cmp">合成語</button>
+      <button class="mode-btn" data-mode="latin">ラテン標語</button>
+    </div>
+    <button id="gen" class="gen-btn">⚔ ギルド名を生成する</button>
+    <div id="results" class="results"></div>
+    <div id="favWrap" class="favs" hidden>
+      <h2>★ お気に入り</h2>
+      <div id="favs" class="results"></div>
+    </div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol>
+    <li>上の型から選ぶ（迷ったら「ミックス」）</li>
+    <li>「ギルド名を生成する」を押すと候補が一覧で出ます</li>
+    <li>気に入った名前は<strong>コピー</strong>、または<strong>★でお気に入り保存</strong></li>
+  </ol>
+
+  <h2>4つの型について</h2>
+  <h3>称号型（The 〇〇）</h3>
+  <p>「The Crimson Order（深紅の騎士団）」のように、形容詞＋集団名で威厳を出す王道型。一目で強さが伝わります。</p>
+  <h3>叙事型（〇〇 of 〇〇）</h3>
+  <p>「Knights of the Abyss（深淵の騎士）」のように、物語性のある荘厳な響き。</p>
+  <h3>合成語</h3>
+  <p>「Stormguard」「Doomblade」のように、英単語を繋げた短く強い造語。発音しやすく覚えやすい。</p>
+  <h3>ラテン語の標語</h3>
+  <p>「Memento Mori（死を想え）」「Ad Astra（星々へ）」など、ラテン語の格言をそのままギルドの旗印に。知的で重厚です。</p>
+
+  <h2>かっこいいギルド名の例（一覧）</h2>
+  <table class="dict"><thead><tr><th>ギルド名</th><th>読み</th><th>意味</th></tr></thead>
+    <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.kana}</td><td>{x.note}</td></tr>))}</tbody>
+  </table>
+
+  <h2>よくある質問</h2>
+  <h3>チーム名・クラン名にも使えますか？</h3>
+  <p>はい。ギルド・チーム・クラン・パーティーなど、集団の名前として幅広くお使いいただけます。</p>
+  <h3>英語が読めなくても大丈夫ですか？</h3>
+  <p>すべての候補にカナ読みと日本語の意味を表示しているので、響きと意味の両方で選べます。</p>
+
+  <p><a href="/tools/rpg-name">→ 個人のキャラ名がほしい場合はこちら（RPG風かっこいい名前ジェネレーター）</a></p>
+
+  <Banner label="── ギルドを結成したら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<style>
+  .tool { border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin: 20px 0 28px; background: #fafbff; }
+  .modes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .mode-btn { border: 1px solid var(--line); background: #fff; color: var(--fg); padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: 14px; }
+  .mode-btn.is-on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .gen-btn { width: 100%; padding: 14px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .gen-btn:active { transform: translateY(1px); }
+  .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 16px; }
+  .name-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+  .name-main { font-size: 1.05rem; font-weight: 700; }
+  .name-kana { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .name-note { display: inline-block; font-size: 11px; color: #475569; background: #eef2ff; border-radius: 6px; padding: 1px 6px; margin-top: 8px; }
+  .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .card-actions button { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 5px; cursor: pointer; font-size: 12px; }
+  .card-actions .copied { background: #dcfce7; border-color: #86efac; }
+  .fav-on { color: #f59e0b; border-color: #fcd34d !important; }
+  .dict { width: 100%; }
+  .favs { margin-top: 20px; }
+</style>
+
+<script>
+  import { generateGuild } from '../../lib/guildGen.mjs';
+  const FAV_KEY = 'guildgen_favs';
+  let mode = 'mix';
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results'), favWrap = $('#favWrap'), favsEl = $('#favs');
+  const loadFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } };
+  const saveFavs = (a) => localStorage.setItem(FAV_KEY, JSON.stringify(a));
+
+  function card(x, { faved = false } = {}) {
+    const el = document.createElement('div');
+    el.className = 'name-card';
+    el.innerHTML = `<div class="name-main"></div><div class="name-kana"></div><span class="name-note"></span>
+      <div class="card-actions"><button class="copy">コピー</button><button class="fav">${faved ? '★' : '☆'}</button></div>`;
+    el.querySelector('.name-main').textContent = x.name;
+    el.querySelector('.name-kana').textContent = x.kana;
+    el.querySelector('.name-note').textContent = x.note;
+    if (faved) el.querySelector('.fav').classList.add('fav-on');
+    el.querySelector('.copy').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(x.name); } catch {}
+      const b = e.currentTarget; b.textContent = 'コピー!'; b.classList.add('copied');
+      setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('copied'); }, 1200);
+    });
+    el.querySelector('.fav').addEventListener('click', (e) => {
+      let favs = loadFavs();
+      const i = favs.findIndex((f) => f.name === x.name);
+      if (i >= 0) { favs.splice(i, 1); e.currentTarget.textContent = '☆'; e.currentTarget.classList.remove('fav-on'); }
+      else { favs.unshift({ name: x.name, kana: x.kana, note: x.note }); e.currentTarget.textContent = '★'; e.currentTarget.classList.add('fav-on'); }
+      saveFavs(favs); renderFavs();
+    });
+    return el;
+  }
+  function renderFavs() {
+    const favs = loadFavs();
+    favWrap.hidden = favs.length === 0;
+    favsEl.innerHTML = '';
+    favs.forEach((x) => favsEl.appendChild(card(x, { faved: true })));
+  }
+  function run() {
+    const favNames = new Set(loadFavs().map((f) => f.name));
+    results.innerHTML = '';
+    generateGuild({ mode, count: 12 }).forEach((x) => results.appendChild(card(x, { faved: favNames.has(x.name) })));
+  }
+  document.querySelectorAll('.mode-btn').forEach((b) =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach((x) => x.classList.remove('is-on'));
+      b.classList.add('is-on'); mode = b.dataset.mode; run();
+    })
+  );
+  $('#gen').addEventListener('click', run);
+  run(); renderFavs();
+</script>

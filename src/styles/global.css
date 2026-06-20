@@ -67,6 +67,11 @@ body {
 .post-list a:hover { color: var(--accent); }
 .post-list .date { color: var(--muted); font-size: 12px; display: block; margin-bottom: 4px; }
 
+/* tool CTA on home */
+.tool-cta { margin: 4px 0 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-cta a { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid #bfdbfe; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-weight: 700; }
+.tool-cta a:hover { background: var(--accent); color: #fff; }
+
 /* thumbnail cards (index) */
 .post-card { display: flex; gap: 14px; align-items: center; }
 .post-card .thumb {

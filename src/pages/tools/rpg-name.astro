@@ -1,0 +1,213 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { generate, REAL, MYTH } from '../../lib/nameGen.mjs';
+
+const title = 'RPG風 かっこいい名前ジェネレーター｜クラウド型〜幻想造語まで無料';
+const description =
+  '「クラウド」のような実在語型から、カバラ・ラテン語・悪魔学の神話型、発音可能な幻想造語まで。RPGやゲームで使えるかっこいい名前を、カナ読み・由来つきで無料で量産できる名前メーカー。';
+
+// 静的に例を出力（SEO用にインデックスされる実コンテンツ）
+const coinedExamples = generate({ mode: 'coined', count: 24, seed: 7 });
+
+const crumbs = [
+  { name: 'ホーム', href: '/' },
+  { name: 'かっこいい名前ジェネレーター', href: '/tools/rpg-name' },
+];
+const url = new URL('/tools/rpg-name', SITE.url).href;
+const webApp = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'RPG風 かっこいい名前ジェネレーター',
+  url,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': `${SITE.url}/#organization` },
+};
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.href, SITE.url).href,
+  })),
+};
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    { '@type': 'Question', name: '生成した名前は自由に使えますか？', acceptedAnswerText: 'はい。ゲームのキャラ名・ID・ギルド名などに自由にお使いいただけます。' },
+    { '@type': 'Question', name: 'どんな種類の名前が作れますか？', acceptedAnswerText: '実在語型（クラウド型）、神話・ラテン・カバラ型（セフィロス型）、幻想の造語型の3系統から選べます。' },
+  ].map((q) => ({ '@type': 'Question', name: q.name, acceptedAnswer: { '@type': 'Answer', text: q.acceptedAnswerText } })),
+};
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb, faq]}>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">RPG風 かっこいい名前ジェネレーター</h1>
+  <p class="post-meta">クラウド型・神話型・幻想造語の3系統。カナ読みと由来つきで無料生成。</p>
+
+  <p>
+    ゲームのキャラクター名やID、ギルド名に使える「かっこいい名前」を自動生成します。
+    『クラウド』のような<strong>実在の英単語型</strong>から、カバラ・ラテン語・悪魔学を源泉にした
+    <strong>神話型（セフィロス型）</strong>、発音できる<strong>幻想の造語型</strong>まで——
+    普通は思いつかない名前を、<strong>カナ読み・由来つき</strong>で何度でも作れます。
+  </p>
+
+  <!-- ===== ツール本体 ===== -->
+  <section class="tool" aria-label="名前ジェネレーター">
+    <div class="modes" role="group" aria-label="系統を選ぶ">
+      <button class="mode-btn is-on" data-mode="mix">ミックス</button>
+      <button class="mode-btn" data-mode="real">実在語（クラウド型）</button>
+      <button class="mode-btn" data-mode="myth">神話・ラテン</button>
+      <button class="mode-btn" data-mode="coined">幻想の造語</button>
+    </div>
+    <button id="gen" class="gen-btn">⚔ 名前を生成する</button>
+    <div id="results" class="results"></div>
+
+    <div id="favWrap" class="favs" hidden>
+      <h2>★ お気に入り</h2>
+      <div id="favs" class="results"></div>
+    </div>
+  </section>
+
+  <Banner />
+
+  <!-- ===== 使い方（静的・SEO） ===== -->
+  <h2>使い方</h2>
+  <ol>
+    <li>上の4系統から好みのタイプを選ぶ（迷ったら「ミックス」）</li>
+    <li>「名前を生成する」を押すと12個の候補が一覧で出ます</li>
+    <li>気に入った名前は<strong>コピー</strong>、または<strong>★でお気に入り保存</strong>（端末に記憶されます）</li>
+  </ol>
+
+  <h2>3つの系統について</h2>
+  <h3>実在語型（クラウド型）</h3>
+  <p>『クラウド（雲）』のように、喚起力のある実在の英単語を名前に転用するタイプ。短く響きが良く、誰が見ても意味が伝わる王道のかっこよさです。</p>
+  <h3>神話・ラテン・カバラ型（セフィロス型）</h3>
+  <p>『セフィロス』の語源であるカバラの<strong>セフィラ</strong>、ラテン語、悪魔学などを源泉にした、知的で重厚な名前。普通の日本人ではまず思いつかない響きが魅力です。</p>
+  <h3>幻想の造語型</h3>
+  <p>発音可能な音節を組み合わせた、世界に一つの造語。カナ読み付きなので「読めない名前」にはなりません。</p>
+
+  <!-- ===== 例の名前辞典（静的・インデックス対象） ===== -->
+  <h2>かっこいい名前の例（一覧）</h2>
+
+  <h3>実在語型の例</h3>
+  <table class="dict"><thead><tr><th>名前</th><th>読み</th><th>由来・意味</th></tr></thead>
+    <tbody>{REAL.map(([n, k, m]) => (<tr><td>{n}</td><td>{k}</td><td>{m}</td></tr>))}</tbody>
+  </table>
+
+  <h3>神話・ラテン・カバラ型の例</h3>
+  <table class="dict"><thead><tr><th>名前</th><th>読み</th><th>由来・意味</th></tr></thead>
+    <tbody>{MYTH.map(([n, k, m]) => (<tr><td>{n}</td><td>{k}</td><td>{m}</td></tr>))}</tbody>
+  </table>
+
+  <h3>幻想の造語型の例</h3>
+  <table class="dict"><thead><tr><th>名前</th><th>読み</th></tr></thead>
+    <tbody>{coinedExamples.map((x) => (<tr><td>{x.name}</td><td>{x.kana}</td></tr>))}</tbody>
+  </table>
+
+  <h2>よくある質問</h2>
+  <h3>生成した名前は自由に使えますか？</h3>
+  <p>はい。ゲームのキャラ名・ID・ギルド名などに自由にお使いいただけます。</p>
+  <h3>同じ名前ばかり出ます／もっと珍しい名前がほしい</h3>
+  <p>「幻想の造語」系統を選ぶと、毎回ほぼ重複しないオリジナルの名前が生成されます。</p>
+
+  <Banner label="── かっこいい名前を決めたら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<style>
+  .tool { border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin: 20px 0 28px; background: #fafbff; }
+  .modes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .mode-btn { border: 1px solid var(--line); background: #fff; color: var(--fg); padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: 14px; }
+  .mode-btn.is-on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .gen-btn { width: 100%; padding: 14px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .gen-btn:active { transform: translateY(1px); }
+  .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  .name-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; position: relative; }
+  .name-main { font-size: 1.15rem; font-weight: 700; letter-spacing: .02em; }
+  .name-kana { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .name-note { display: inline-block; font-size: 11px; color: #475569; background: #eef2ff; border-radius: 6px; padding: 1px 6px; margin-top: 8px; }
+  .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .card-actions button { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 5px; cursor: pointer; font-size: 12px; }
+  .card-actions .copied { background: #dcfce7; border-color: #86efac; }
+  .fav-on { color: #f59e0b; border-color: #fcd34d !important; }
+  .dict { width: 100%; }
+  .favs { margin-top: 20px; }
+</style>
+
+<script>
+  import { generate } from '../../lib/nameGen.mjs';
+
+  const FAV_KEY = 'namegen_favs';
+  let mode = 'mix';
+
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results');
+  const favWrap = $('#favWrap');
+  const favsEl = $('#favs');
+
+  const loadFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } };
+  const saveFavs = (a) => localStorage.setItem(FAV_KEY, JSON.stringify(a));
+
+  function card(x, { faved = false } = {}) {
+    const el = document.createElement('div');
+    el.className = 'name-card';
+    el.innerHTML = `
+      <div class="name-main"></div>
+      <div class="name-kana"></div>
+      <span class="name-note"></span>
+      <div class="card-actions">
+        <button class="copy">コピー</button>
+        <button class="fav">${faved ? '★' : '☆'}</button>
+      </div>`;
+    el.querySelector('.name-main').textContent = x.name;
+    el.querySelector('.name-kana').textContent = x.kana;
+    el.querySelector('.name-note').textContent = x.note;
+    if (faved) el.querySelector('.fav').classList.add('fav-on');
+
+    el.querySelector('.copy').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(x.name); } catch {}
+      const b = e.currentTarget; b.textContent = 'コピー!'; b.classList.add('copied');
+      setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('copied'); }, 1200);
+    });
+    el.querySelector('.fav').addEventListener('click', (e) => {
+      let favs = loadFavs();
+      const i = favs.findIndex((f) => f.name === x.name);
+      if (i >= 0) { favs.splice(i, 1); e.currentTarget.textContent = '☆'; e.currentTarget.classList.remove('fav-on'); }
+      else { favs.unshift({ name: x.name, kana: x.kana, note: x.note }); e.currentTarget.textContent = '★'; e.currentTarget.classList.add('fav-on'); }
+      saveFavs(favs); renderFavs();
+    });
+    return el;
+  }
+
+  function renderFavs() {
+    const favs = loadFavs();
+    favWrap.hidden = favs.length === 0;
+    favsEl.innerHTML = '';
+    favs.forEach((x) => favsEl.appendChild(card(x, { faved: true })));
+  }
+
+  function run() {
+    const favNames = new Set(loadFavs().map((f) => f.name));
+    const list = generate({ mode, count: 12 });
+    results.innerHTML = '';
+    list.forEach((x) => results.appendChild(card(x, { faved: favNames.has(x.name) })));
+  }
+
+  document.querySelectorAll('.mode-btn').forEach((b) =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach((x) => x.classList.remove('is-on'));
+      b.classList.add('is-on');
+      mode = b.dataset.mode;
+      run();
+    })
+  );
+  $('#gen').addEventListener('click', run);
+
+  run();
+  renderFavs();
+</script>
