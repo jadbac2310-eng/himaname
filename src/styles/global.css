@@ -67,10 +67,15 @@ body {
 .post-list a:hover { color: var(--accent); }
 .post-list .date { color: var(--muted); font-size: 12px; display: block; margin-bottom: 4px; }
 
-/* tool CTA on home */
-.tool-cta { margin: 4px 0 20px; display: flex; flex-wrap: wrap; gap: 8px; }
-.tool-cta a { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid #bfdbfe; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-weight: 700; }
-.tool-cta a:hover { background: var(--accent); color: #fff; }
+/* tools grid on home */
+.home-tools { margin: 10px 0 28px; }
+.home-tools-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.home-tools-head h2 { font-size: 1.1rem; margin: 0; border: 0; padding: 0; }
+.home-tools-head a { font-size: 13px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tool-grid a { display: flex; align-items: center; gap: 9px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--fg); font-weight: 600; font-size: 14px; background: #fff; transition: .15s; }
+.tool-grid a:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); transform: translateY(-1px); }
+.tool-grid .ico { font-size: 19px; line-height: 1; }
 
 /* thumbnail cards (index) */
 .post-card { display: flex; gap: 14px; align-items: center; }

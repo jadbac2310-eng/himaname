@@ -24,11 +24,33 @@ const blogSchema = {
     datePublished: new Date(p.data.pubDate).toISOString(),
   })),
 };
+
+const TOOLS = [
+  ['⚔️', 'かっこいい名前', '/tools/rpg-name'],
+  ['🔥', '二つ名', '/tools/futatsuna'],
+  ['💥', '技名・必殺技', '/tools/skill-name'],
+  ['🛡️', 'ギルド名', '/tools/guild-name'],
+  ['👥', 'チーム名', '/tools/team-name'],
+  ['💬', 'サーバー名', '/tools/server-name'],
+  ['🆔', 'ID・名前', '/tools/player-id'],
+  ['✨', '文字装飾', '/tools/fancy-text'],
+  ['🎰', 'ガチャ', '/tools/gacha'],
+  ['⛩️', 'おみくじ', '/tools/omikuji'],
+  ['🎡', 'ルーレット', '/tools/roulette'],
+  ['🪜', 'あみだくじ', '/tools/amidakuji'],
+];
 ---
 <BaseLayout title={SITE.name} description={SITE.description} jsonLd={[blogSchema]}>
   <h1 class="post-title">{SITE.name}</h1>
   <p class="post-meta">名前のアイデアと、ちょっとした暇つぶし。毎日更新中。</p>
-  <p class="tool-cta"><a href="/tools">🎮 ゲーマー向け無料ツール一覧（名前・二つ名・技名・ギルド名・ID…）</a></p>
+  <section class="home-tools" aria-label="無料ツール">
+    <div class="home-tools-head"><h2>🎮 無料ツール</h2><a href="/tools">すべて見る →</a></div>
+    <div class="tool-grid">
+      {TOOLS.map(([ico, name, href]) => (
+        <a href={href}><span class="ico">{ico}</span>{name}</a>
+      ))}
+    </div>
+  </section>
   {posts.length === 0 && <p>記事はまだありません。</p>}
   <ul class="post-list">
     {posts.map((p) => (
