@@ -10,6 +10,7 @@ interface Props {
   article?: boolean;
   noindex?: boolean;
   jsonLd?: unknown[]; // ページ固有の追加スキーマ
+  bodyClass?: string; // ページ単位のテーマ切替（例: theme-dark）
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   article = false,
   noindex = false,
   jsonLd = [],
+  bodyClass = '',
 } = Astro.props;
 
 const siteName = SITE.name;
@@ -81,7 +83,7 @@ const schemas = [...baseSchema, ...jsonLd];
     <link rel="sitemap" href="/sitemap-index.xml" />
     {schemas.map((s) => <JsonLd schema={s} />)}
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main">本文へスキップ</a>
     <header class="site-header">
       <div class="container"><a href="/" class="brand"><img src="/logo.svg" alt={siteName} height="32" width="320" /></a></div>
