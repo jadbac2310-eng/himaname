@@ -157,10 +157,10 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 }
 .name-card:hover { border-color: rgba(167,139,250,.4); transform: translateY(-1px); }
 .name-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--rarity,#64748b); box-shadow: 0 0 12px var(--rarity,#64748b); }
-.cat-real, .cat-the { --rarity: #38bdf8; }
-.cat-myth, .cat-latin { --rarity: #fbbf24; }
-.cat-coined, .cat-cmp { --rarity: #c084fc; }
-.cat-of { --rarity: #f472b6; }
+.cat-real, .cat-the, .cat-attr { --rarity: #38bdf8; }
+.cat-myth, .cat-latin, .cat-jukugo { --rarity: #fbbf24; }
+.cat-coined, .cat-cmp, .cat-mono { --rarity: #c084fc; }
+.cat-of, .cat-naru { --rarity: #f472b6; }
 .name-main {
   font-size: 1.18rem; font-weight: 800; letter-spacing: .02em; line-height: 1.2;
   color: #eef2ff;

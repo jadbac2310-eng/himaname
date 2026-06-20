@@ -28,7 +28,7 @@ const blogSchema = {
 <BaseLayout title={SITE.name} description={SITE.description} jsonLd={[blogSchema]}>
   <h1 class="post-title">{SITE.name}</h1>
   <p class="post-meta">名前のアイデアと、ちょっとした暇つぶし。毎日更新中。</p>
-  <p class="tool-cta"><a href="/tools/rpg-name">⚔ かっこいい名前ジェネレーター</a> <a href="/tools/guild-name">🛡 ギルド名メーカー</a></p>
+  <p class="tool-cta"><a href="/tools/rpg-name">⚔ かっこいい名前</a> <a href="/tools/guild-name">🛡 ギルド名</a> <a href="/tools/futatsuna">🔥 二つ名</a></p>
   {posts.length === 0 && <p>記事はまだありません。</p>}
   <ul class="post-list">
     {posts.map((p) => (

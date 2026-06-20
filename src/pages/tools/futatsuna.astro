@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { generateEpithet } from '../../lib/epithetGen.mjs';
+
+const title = '二つ名・異名ジェネレーター｜中二病でかっこいい二つ名メーカー';
+const description =
+  'RPGやゲームのキャラに付ける「二つ名・異名」を自動生成する無料メーカー。「蒼炎の剣聖」「深淵を覗く者」のような中二心くすぐる二つ名を、よみがな付きで何度でも。';
+
+const examples = generateEpithet({ mode: 'mix', count: 40, seed: 5 });
+
+const crumbs = [
+  { name: 'ホーム', href: '/' },
+  { name: 'ツール', href: '/tools' },
+  { name: '二つ名ジェネレーター', href: '/tools/futatsuna' },
+];
+const url = new URL('/tools/futatsuna', SITE.url).href;
+const webApp = {
+  '@context': 'https://schema.org', '@type': 'WebApplication',
+  name: '二つ名・異名ジェネレーター', url,
+  applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': `${SITE.url}/#organization` },
+};
+const breadcrumb = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.href, SITE.url).href })),
+};
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">二つ名・異名ジェネレーター</h1>
+  <p class="post-meta">「蒼炎の剣聖」「深淵を覗く者」——中二心くすぐる二つ名を、よみがな付きで自動生成。</p>
+
+  <p>
+    RPGやゲームのキャラクターに付ける<strong>二つ名・異名</strong>を自動生成します。
+    「<strong>属性＋称号</strong>」型、「<strong>〜する者</strong>」の者系、一語で決まる<strong>熟語</strong>、
+    「<strong>〜なる〜</strong>」の形容型まで——そのまま使える二つ名を、<strong>よみがな付き</strong>で何度でも作れます。
+  </p>
+
+  <section class="tool" aria-label="二つ名ジェネレーター">
+    <div class="modes" role="group" aria-label="型を選ぶ">
+      <button class="mode-btn is-on" data-mode="mix">ミックス</button>
+      <button class="mode-btn" data-mode="attr">属性＋称号</button>
+      <button class="mode-btn" data-mode="mono">者系</button>
+      <button class="mode-btn" data-mode="jukugo">熟語</button>
+      <button class="mode-btn" data-mode="naru">形容（〜なる〜）</button>
+    </div>
+    <button id="gen" class="gen-btn">⚔ 二つ名を生成する</button>
+    <div id="results" class="results"></div>
+    <div id="favWrap" class="favs" hidden>
+      <h2>★ お気に入り</h2>
+      <div id="favs" class="results"></div>
+    </div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol>
+    <li>上の型から選ぶ（迷ったら「ミックス」）</li>
+    <li>「二つ名を生成する」を押すと候補が一覧で出ます</li>
+    <li>気に入った二つ名は<strong>コピー</strong>、または<strong>★でお気に入り保存</strong></li>
+  </ol>
+
+  <h2>二つ名の型について</h2>
+  <h3>属性＋称号</h3>
+  <p>「蒼炎の剣聖」「虚無の守護者」のように、属性＋称号で世界観を一発で立てる王道型。</p>
+  <h3>者系（〜する者）</h3>
+  <p>「深淵を覗く者」「終焉を告げし者」のように、行動で示す物語性の高い二つ名。</p>
+  <h3>熟語</h3>
+  <p>「焔皇」「羅刹」「絶影」のように、一語で重く響く熟語型。短くて覚えやすい。</p>
+  <h3>形容（〜なる〜）</h3>
+  <p>「永劫なる守護者」「冷徹なる支配者」のように、荘厳さを足す形容型。</p>
+
+  <h2>かっこいい二つ名の例（一覧）</h2>
+  <table class="dict"><thead><tr><th>二つ名</th><th>よみ</th><th>型</th></tr></thead>
+    <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.kana}</td><td>{x.note}</td></tr>))}</tbody>
+  </table>
+
+  <h2>よくある質問</h2>
+  <h3>キャラ名と二つ名は別ですか？</h3>
+  <p>はい。二つ名は「異名・通り名」です。本名は<a href="/tools/rpg-name">RPG風かっこいい名前ジェネレーター</a>で作れます。</p>
+  <h3>読み方が分からない漢字もありますか？</h3>
+  <p>すべての候補によみがなを表示しているので、難読の二つ名も安心して使えます。</p>
+
+  <p><a href="/tools">→ 他のジェネレーターを見る</a></p>
+
+  <Banner label="── 二つ名を背負ったら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  import { generateEpithet } from '../../lib/epithetGen.mjs';
+  const FAV_KEY = 'epithetgen_favs';
+  let mode = 'mix';
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results'), favWrap = $('#favWrap'), favsEl = $('#favs');
+  const loadFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } };
+  const saveFavs = (a) => localStorage.setItem(FAV_KEY, JSON.stringify(a));
+
+  function card(x, { faved = false } = {}) {
+    const el = document.createElement('div');
+    el.className = 'name-card cat-' + (x.cat || '');
+    el.innerHTML = `<div class="name-main"></div><div class="name-kana"></div><span class="name-note"></span>
+      <div class="card-actions"><button class="copy">コピー</button><button class="fav">${faved ? '★' : '☆'}</button></div>`;
+    el.querySelector('.name-main').textContent = x.name;
+    el.querySelector('.name-kana').textContent = x.kana;
+    el.querySelector('.name-note').textContent = x.note;
+    if (faved) el.querySelector('.fav').classList.add('fav-on');
+    el.querySelector('.copy').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(x.name); } catch {}
+      const b = e.currentTarget; b.textContent = 'コピー!'; b.classList.add('copied');
+      setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('copied'); }, 1200);
+    });
+    el.querySelector('.fav').addEventListener('click', (e) => {
+      let favs = loadFavs();
+      const i = favs.findIndex((f) => f.name === x.name);
+      if (i >= 0) { favs.splice(i, 1); e.currentTarget.textContent = '☆'; e.currentTarget.classList.remove('fav-on'); }
+      else { favs.unshift({ name: x.name, kana: x.kana, note: x.note }); e.currentTarget.textContent = '★'; e.currentTarget.classList.add('fav-on'); }
+      saveFavs(favs); renderFavs();
+    });
+    return el;
+  }
+  function renderFavs() {
+    const favs = loadFavs();
+    favWrap.hidden = favs.length === 0;
+    favsEl.innerHTML = '';
+    favs.forEach((x) => favsEl.appendChild(card(x, { faved: true })));
+  }
+  function run() {
+    const favNames = new Set(loadFavs().map((f) => f.name));
+    results.innerHTML = '';
+    generateEpithet({ mode, count: 12 }).forEach((x) => results.appendChild(card(x, { faved: favNames.has(x.name) })));
+  }
+  document.querySelectorAll('.mode-btn').forEach((b) =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach((x) => x.classList.remove('is-on'));
+      b.classList.add('is-on'); mode = b.dataset.mode; run();
+    })
+  );
+  $('#gen').addEventListener('click', run);
+  run(); renderFavs();
+</script>
