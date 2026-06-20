@@ -243,6 +243,13 @@ body.theme-dark .dict th, body.theme-dark .dict td { border-color: rgba(148,163,
 .mini-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 8px; }
 .mini-inputs input { padding: 11px; }
 
+/* 選択肢リスト（ルーレット等）：個別欄＋削除 */
+.opt-list { margin-top: 6px; }
+.opt-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.opt-row input { flex: 1; }
+.opt-del { flex: 0 0 48px; border: 1px solid rgba(148,163,184,.28); background: rgba(255,255,255,.05); color: #f87171; border-radius: 10px; font-size: 20px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.opt-num { flex: 0 0 26px; align-self: center; text-align: center; color: #9aa3c0; font-size: 13px; font-weight: 700; }
+
 /* あみだくじ・文字装飾 */
 .amida-wrap { overflow-x: auto; margin: 14px 0; }
 .fancy-row { display: flex; gap: 8px; align-items: center; border: 1px solid rgba(148,163,184,.16); border-radius: 10px; padding: 10px 12px; margin-top: 9px; background: rgba(255,255,255,.03); }

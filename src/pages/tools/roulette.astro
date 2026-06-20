@@ -18,11 +18,11 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   <p>好きな<strong>選択肢を入力して回せる決定ルーレット</strong>です。迷ったときにボタンを押すと、ランダムに1つ選んでくれます。</p>
 
   <section class="tool" aria-label="ルーレット">
-    <div class="field"><label>選択肢（1行に1つ）</label><textarea id="opts">ラーメン
-カレー
-寿司
-パスタ
-焼肉</textarea></div>
+    <div class="field">
+      <label>選択肢</label>
+      <div id="opts" class="opt-list"></div>
+      <button id="add" class="gen-btn secondary" type="button">＋ 選択肢を追加</button>
+    </div>
     <div class="wheel-wrap"><span class="wheel-pin">▼</span><svg id="wheel" class="wheel" viewBox="0 0 200 200"></svg></div>
     <div id="result" class="wheel-result"></div>
     <button id="spin" class="gen-btn">🎡 ルーレットを回す</button>
@@ -40,10 +40,22 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
 
 <script>
   const COLORS = ['#6366f1','#a855f7','#06b6d4','#f472b6','#fbbf24','#38bdf8','#c084fc','#34d399'];
+  const DEFAULTS = ['ラーメン', 'カレー', '寿司', 'パスタ', '焼肉'];
   const $ = (s) => document.querySelector(s);
-  const wheel = $('#wheel'), resultEl = $('#result');
+  const optBox = $('#opts'), wheel = $('#wheel'), resultEl = $('#result');
   let spin = 0, spinning = false;
-  const getOpts = () => $('#opts').value.split('\n').map((s) => s.trim()).filter(Boolean);
+
+  const getOpts = () => [...optBox.querySelectorAll('input')].map((i) => i.value.trim()).filter(Boolean);
+  function renumber() { [...optBox.querySelectorAll('.opt-num')].forEach((n, i) => (n.textContent = i + 1)); }
+  function addRow(value = '') {
+    const row = document.createElement('div'); row.className = 'opt-row';
+    const num = document.createElement('span'); num.className = 'opt-num';
+    const inp = document.createElement('input'); inp.type = 'text'; inp.value = value; inp.placeholder = '選択肢';
+    inp.addEventListener('input', build);
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'opt-del'; del.textContent = '×';
+    del.addEventListener('click', () => { if (optBox.querySelectorAll('.opt-row').length <= 2) return; row.remove(); renumber(); build(); });
+    row.append(num, inp, del); optBox.appendChild(row); renumber();
+  }
   function pt(a, r) { const rad = a * Math.PI / 180; return [100 + r * Math.sin(rad), 100 - r * Math.cos(rad)]; }
   function build() {
     const opts = getOpts(); const n = opts.length; wheel.innerHTML = '';
@@ -74,7 +86,8 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     wheel.style.transform = `rotate(${spin}deg)`;
     setTimeout(() => { resultEl.textContent = '▶ ' + opts[w]; spinning = false; }, 4300);
   }
-  $('#opts').addEventListener('input', build);
+  $('#add').addEventListener('click', () => { addRow(''); build(); const ins = optBox.querySelectorAll('input'); ins[ins.length - 1].focus(); });
   $('#spin').addEventListener('click', doSpin);
+  DEFAULTS.forEach((d) => addRow(d));
   build();
 </script>

@@ -18,6 +18,11 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
   <p>SSR・SR・Rの<strong>排出率を自分で設定</strong>して、1回／10連でガチャを回せるシミュレーターです。何連でSSRが出るか、爆死や神引きの体感を無料で試せます。</p>
 
   <section class="tool" aria-label="ガチャシミュレーター">
+    <div class="modes" style="margin-bottom:12px">
+      <button class="mode-btn" type="button" data-p="3,12">標準 SSR3%</button>
+      <button class="mode-btn" type="button" data-p="1,9">渋め SSR1%</button>
+      <button class="mode-btn" type="button" data-p="6,18">甘め SSR6%</button>
+    </div>
     <div class="row2">
       <div class="field"><label>SSR 排出率 (%)</label><input id="ssr" type="number" value="3" min="0" max="100" step="0.1" /></div>
       <div class="field"><label>SR 排出率 (%)</label><input id="sr" type="number" value="12" min="0" max="100" step="0.1" /></div>
@@ -87,6 +92,7 @@ const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', i
     updateTally();
     setTimeout(() => { summon.classList.remove('on'); reveal(items); busy = false; }, 760);
   }
+  document.querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => { const [a, c] = b.dataset.p.split(','); $('#ssr').value = a; $('#sr').value = c; }));
   $('#pull1').addEventListener('click', () => pull(1));
   $('#pull10').addEventListener('click', () => pull(10));
   $('#reset').addEventListener('click', () => { n = ssrN = srN = 0; results.innerHTML = ''; tally.innerHTML = ''; celebrate.textContent = ''; });
