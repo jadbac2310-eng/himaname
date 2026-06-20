@@ -1,0 +1,17 @@
+---
+// items: [{ name, href }]  最後の要素は現在地（リンクなし表示）
+const { items = [] } = Astro.props;
+---
+<nav class="breadcrumbs" aria-label="パンくず">
+  <ol>
+    {items.map((item, i) => (
+      <li>
+        {i < items.length - 1 ? (
+          <a href={item.href}>{item.name}</a>
+        ) : (
+          <span aria-current="page">{item.name}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE, AUTHOR } from '../consts';
+
+const crumbs = [
+  { name: 'ホーム', href: '/' },
+  { name: '運営者・編集方針', href: '/about' },
+];
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: `${SITE.name} について`,
+  url: new URL('/about', SITE.url).href,
+  inLanguage: SITE.lang,
+  publisher: { '@id': `${SITE.url}/#organization` },
+};
+---
+<BaseLayout
+  title={`運営者・編集方針 | ${SITE.name}`}
+  description={`${SITE.name} の運営方針・編集プロセス・お問い合わせについて。`}
+  jsonLd={[aboutSchema]}
+>
+  <Breadcrumbs items={crumbs} />
+  <article class="prose">
+    <h1 class="post-title">運営者・編集方針について</h1>
+
+    <h2>このサイトについて</h2>
+    <p>{SITE.name} は、「名前のアイデア」と「ちょっとした暇つぶし」をテーマに、
+      日々の検索ニーズに即答する記事を毎日お届けするメディアです。</p>
+
+    <h2>編集体制</h2>
+    <p>記事は <strong>{AUTHOR.name}</strong> が企画・編集しています。
+      キーワード調査にもとづいてテーマを選定し、内容の正確さと読みやすさを基準に構成しています。</p>
+
+    <h2>AIの活用について（透明性の開示）</h2>
+    <p>本サイトの記事本文および挿絵は、<strong>生成AIを活用して作成し、編集方針にもとづいて公開</strong>しています。
+      名前の一覧・診断・クイズなど、その場で楽しめる独自性のあるコンテンツの提供に重点を置いています。
+      事実関係に関わる内容は一般に正確性を期していますが、利用は自己責任でお願いします。</p>
+
+    <h2>更新頻度</h2>
+    <p>原則として毎朝1本を公開しています。各記事には公開日（必要に応じて更新日）を明記しています。</p>
+
+    <h2>お問い合わせ</h2>
+    <p>内容に関するご指摘・お問い合わせは、運営者までご連絡ください。
+      （※ 公開時に連絡先メールアドレスまたはフォームのURLをここに記載してください。）</p>
+  </article>
+</BaseLayout>

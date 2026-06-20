@@ -1,0 +1,50 @@
+name: daily-post
+
+on:
+  schedule:
+    # JST 6:00 = UTC 21:00（GitHubのcronは数十分遅延することがある）
+    - cron: '0 21 * * *'
+  workflow_dispatch: # 手動実行も可
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-post
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate today's article
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CLAUDE_MODEL: ${{ secrets.CLAUDE_MODEL }}
+          IMAGE_MODEL: ${{ secrets.IMAGE_MODEL }}
+          BANNER_IMAGE_URL: ${{ secrets.BANNER_IMAGE_URL }}
+          BANNER_LINK_URL: ${{ secrets.BANNER_LINK_URL }}
+        run: npm run generate
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/posts public/images data/keyword-queue.csv data/posted-log.json
+          if git diff --cached --quiet; then
+            echo "No changes (queue empty?)."
+          else
+            git commit -m "post: $(date -u +%Y-%m-%d) auto-generated article"
+            git push
+          fi
+        # push 後、Vercel の Git 連携が自動でビルド＆デプロイする

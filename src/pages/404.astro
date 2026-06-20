@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../consts';
+---
+<BaseLayout title={`ページが見つかりません | ${SITE.name}`} noindex={true}>
+  <article class="prose" style="text-align:center; padding:48px 0;">
+    <h1 class="post-title">404 — ページが見つかりません</h1>
+    <p>お探しのページは移動または削除された可能性があります。</p>
+    <p style="margin-top:24px"><a href="/">← 記事一覧へ戻る</a></p>
+  </article>
+</BaseLayout>

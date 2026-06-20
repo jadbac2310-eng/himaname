@@ -1,0 +1,113 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Banner from '../../components/Banner.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SITE, AUTHOR } from '../../consts';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, posts } }));
+}
+
+const { post, posts } = Astro.props;
+const { Content } = await render(post);
+
+const fmt = (d) =>
+  new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+const iso = (d) => new Date(d).toISOString();
+
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const pub = post.data.pubDate;
+const upd = post.data.updatedDate || post.data.pubDate;
+const heroAbs = post.data.heroImage ? new URL(post.data.heroImage, Astro.site).href : undefined;
+const authorName = post.data.author || AUTHOR.name;
+
+// 関連記事（同クラスタ優先）— 内部リンク
+const related = posts
+  .filter((p) => p.id !== post.id)
+  .sort((a, b) => {
+    const sa = a.data.cluster === post.data.cluster ? 0 : 1;
+    const sb = b.data.cluster === post.data.cluster ? 0 : 1;
+    if (sa !== sb) return sa - sb;
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+  })
+  .slice(0, 5);
+
+const crumbs = [
+  { name: 'ホーム', href: '/' },
+  { name: post.data.title, href: Astro.url.pathname },
+];
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.description,
+  inLanguage: SITE.lang,
+  datePublished: iso(pub),
+  dateModified: iso(upd),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  author: { '@type': 'Organization', name: authorName, url: new URL(AUTHOR.url, SITE.url).href },
+  publisher: { '@id': `${SITE.url}/#organization` },
+  ...(heroAbs ? { image: [heroAbs] } : {}),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: new URL(c.href, SITE.url).href,
+  })),
+};
+---
+<BaseLayout
+  title={`${post.data.title} | ${SITE.name}`}
+  description={post.data.description}
+  image={post.data.heroImage}
+  article={true}
+  jsonLd={[articleSchema, breadcrumbSchema]}
+>
+  <Breadcrumbs items={crumbs} />
+  <article>
+    <h1 class="post-title">{post.data.title}</h1>
+    <p class="post-meta">
+      <span>公開: <time datetime={iso(pub)}>{fmt(pub)}</time></span>
+      {post.data.updatedDate && <span> ・ 更新: <time datetime={iso(upd)}>{fmt(upd)}</time></span>}
+      <span> ・ {authorName}</span>
+    </p>
+    {post.data.heroImage && (
+      <img
+        class="hero"
+        src={post.data.heroImage}
+        alt={post.data.title}
+        width="1536"
+        height="1024"
+        fetchpriority="high"
+        decoding="async"
+      />
+    )}
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <Banner label="── このゲームで暇つぶしの続きを ──" />
+
+    {related.length > 0 && (
+      <section class="related" aria-label="関連記事">
+        <h2>関連記事</h2>
+        <ul class="post-list">
+          {related.map((p) => (
+            <li><a href={`/posts/${p.id}/`}>{p.data.title}</a></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p style="margin-top:32px"><a href="/">← 記事一覧へ</a></p>
+  </article>
+</BaseLayout>

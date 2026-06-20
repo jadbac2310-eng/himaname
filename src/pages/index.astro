@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../consts';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const fmt = (d) =>
+  new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: SITE.name,
+  description: SITE.description,
+  url: SITE.url,
+  inLanguage: SITE.lang,
+  publisher: { '@id': `${SITE.url}/#organization` },
+  blogPost: posts.slice(0, 20).map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    url: new URL(`/posts/${p.id}/`, SITE.url).href,
+    datePublished: new Date(p.data.pubDate).toISOString(),
+  })),
+};
+---
+<BaseLayout title={SITE.name} description={SITE.description} jsonLd={[blogSchema]}>
+  <h1 class="post-title">{SITE.name}</h1>
+  <p class="post-meta">名前のアイデアと、ちょっとした暇つぶし。毎日更新中。</p>
+  {posts.length === 0 && <p>記事はまだありません。</p>}
+  <ul class="post-list">
+    {posts.map((p) => (
+      <li>
+        <a href={`/posts/${p.id}/`} class="post-card">
+          <img
+            class="thumb"
+            src={p.data.heroImage || '/og-default.svg'}
+            alt=""
+            width="120"
+            height="80"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="post-card-body">
+            <span class="date">{fmt(p.data.pubDate)}</span>
+            <span class="post-card-title">{p.data.title}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

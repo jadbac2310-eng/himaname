@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import JsonLd from '../components/JsonLd.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  noindex?: boolean;
+  jsonLd?: unknown[]; // ページ固有の追加スキーマ
+}
+
+const {
+  title,
+  description = SITE.description,
+  image,
+  article = false,
+  noindex = false,
+  jsonLd = [],
+} = Astro.props;
+
+const siteName = SITE.name;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image || SITE.ogDefault, Astro.site).href;
+const ogType = article ? 'article' : 'website';
+const year = new Date().getFullYear();
+
+// 全ページ共通：WebSite + Organization（エンティティ理解／AI検索の土台）
+const orgId = `${SITE.url}/#organization`;
+const baseSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE.url}/#website`,
+    name: siteName,
+    url: SITE.url,
+    description: SITE.description,
+    inLanguage: SITE.lang,
+    publisher: { '@id': orgId },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': orgId,
+    name: siteName,
+    url: SITE.url,
+    logo: { '@type': 'ImageObject', url: new URL(SITE.logo, SITE.url).href },
+  },
+];
+const schemas = [...baseSchema, ...jsonLd];
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {schemas.map((s) => <JsonLd schema={s} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へスキップ</a>
+    <header class="site-header">
+      <div class="container"><a href="/" class="brand"><img src="/logo.svg" alt={siteName} height="32" width="320" /></a></div>
+    </header>
+    <main id="main" class="container">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <a href="/about">運営者・編集方針について</a> ・ <a href="/rss.xml">RSS</a><br />
+        &copy; {year} {siteName}
+      </div>
+    </footer>
+  </body>
+</html>

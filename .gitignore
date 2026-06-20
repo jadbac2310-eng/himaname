@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# env / secrets
+.env
+.env.local
+
+# rakko research raw outputs (keep data/keyword-queue.csv which is the curated list)
+rakko_raw_results.json
+rakko_run.log
+rakko_summary*.json
+rakko_picked_*.csv
+rakko_master_*.txt
+rakko_analysis.txt
+
+# os
+.DS_Store
+Thumbs.db
