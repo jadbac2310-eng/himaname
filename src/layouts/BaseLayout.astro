@@ -82,6 +82,8 @@ const schemas = [...baseSchema, ...jsonLd];
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {schemas.map((s) => <JsonLd schema={s} />)}
+    {/* Google Analytics (GA4) — 本番のみ */}
+    <script is:inline set:html={import.meta.env.PROD ? `var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-VF6W3PPHEL';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-VF6W3PPHEL');` : ''} />
   </head>
   <body class={bodyClass}>
     <a class="skip-link" href="#main">本文へスキップ</a>
