@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+import { convert } from '../../lib/fancyText.mjs';
+
+const title = '文字装飾・フォント変換｜𝓯𝓪𝓷𝓬𝔂なおしゃれ文字メーカー（無料）';
+const description = '入力した文字を𝓯𝓪𝓷𝓬𝔂・𝔤𝔬𝔱𝔥𝔦𝔠・ⓒⓘⓡⓒⓛⓔなどのおしゃれフォントに変換する無料ツール。ゲームの名前・ID・SNSのプロフィールにそのままコピペできます。';
+const examples = convert('Cloud');
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: '文字装飾・フォント変換', href: '/tools/fancy-text' } ];
+const url = new URL('/tools/fancy-text', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'文字装飾・フォント変換', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">文字装飾・フォント変換</h1>
+  <p class="post-meta">入力した文字を𝓯𝓪𝓷𝓬𝔂なおしゃれフォントに変換。名前・ID・SNSにコピペ。</p>
+  <p>文字を<strong>𝓯𝓪𝓷𝓬𝔂・𝔤𝔬𝔱𝔥𝔦𝔠・ⓒⓘⓡⓒⓛⓔ</strong>などのおしゃれな見た目に変換します。ゲームの<strong>名前・ID・ギルド名</strong>やSNSのプロフィールにそのままコピペできます。</p>
+
+  <section class="tool" aria-label="文字装飾">
+    <div class="field"><label>変換したい文字（英数字）</label><input id="src" type="text" value="Cloud" autocomplete="off" /></div>
+    <div id="out"></div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol><li>英数字を入力</li><li>各スタイルの「コピー」を押す</li><li>名前・ID・SNSに貼り付け</li></ol>
+  <h2>注意</h2>
+  <p>特殊な見た目の文字はゲームやアプリによって表示できない（□になる）場合があります。貼り付け先で確認してください。日本語（ひらがな・漢字）は変換対象外です。</p>
+
+  <h2>変換例（「Cloud」の場合）</h2>
+  <table class="dict"><thead><tr><th>スタイル</th><th>変換後</th></tr></thead>
+    <tbody>{examples.map((x) => (<tr><td>{x.name}</td><td>{x.out}</td></tr>))}</tbody>
+  </table>
+
+  <p><a href="/tools/rpg-name">→ 装飾する名前を作る（名前ジェネレーター）</a> ／ <a href="/tools">他のツール</a></p>
+  <Banner label="── 名前を飾ったら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  import { STYLES } from '../../lib/fancyText.mjs';
+  const $ = (s) => document.querySelector(s);
+  const out = $('#out'), src = $('#src');
+  function render() {
+    const t = src.value || '';
+    out.innerHTML = '';
+    STYLES.forEach(([name, fn]) => {
+      const val = fn(t);
+      const row = document.createElement('div'); row.className = 'fancy-row';
+      const left = document.createElement('div'); left.style.flex = '1';
+      const s = document.createElement('div'); s.className = 'fancy-style'; s.textContent = name;
+      const o = document.createElement('div'); o.className = 'fancy-out'; o.textContent = val;
+      left.appendChild(s); left.appendChild(o);
+      const btn = document.createElement('button'); btn.className = 'copy'; btn.textContent = 'コピー';
+      btn.addEventListener('click', async () => { try { await navigator.clipboard.writeText(val); } catch {} btn.textContent = 'コピー!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 1200); });
+      row.appendChild(left); row.appendChild(btn); out.appendChild(row);
+    });
+  }
+  src.addEventListener('input', render);
+  render();
+</script>

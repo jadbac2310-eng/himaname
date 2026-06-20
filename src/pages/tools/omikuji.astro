@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+
+const title = 'オンラインおみくじ｜無料で引けるデジタルおみくじ（運勢・恋愛・金運）';
+const description = 'タップするだけで引ける無料のオンラインおみくじ。大吉〜大凶の運勢に加え、恋愛・仕事・金運・健康のメッセージとラッキーアイテムを表示。暇つぶしや今日の運試しに。';
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'オンラインおみくじ', href: '/tools/omikuji' } ];
+const url = new URL('/tools/omikuji', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'オンラインおみくじ', url, applicationCategory:'GameUtilityApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">オンラインおみくじ</h1>
+  <p class="post-meta">タップするだけ。大吉〜大凶の運勢＋恋愛・金運メッセージとラッキーアイテムを無料で。</p>
+  <p>今日の運勢を占う無料の<strong>デジタルおみくじ</strong>です。ボタンを押すと運勢（大吉〜大凶）と、恋愛・仕事・金運・健康のひとことアドバイス、ラッキーアイテムが表示されます。</p>
+
+  <section class="tool" aria-label="おみくじ">
+    <button id="draw" class="gen-btn">⛩ おみくじを引く</button>
+    <div id="result" class="omikuji-box" hidden>
+      <div id="fortune" class="omikuji-fortune"></div>
+      <table class="omikuji-table"><tbody id="msg"></tbody></table>
+      <button id="again" class="gen-btn secondary">もう一度引く</button>
+    </div>
+  </section>
+
+  <Banner />
+
+  <h2>運勢の順番</h2>
+  <p>大吉 ＞ 中吉 ＞ 小吉 ＞ 吉 ＞ 末吉 ＞ 凶 ＞ 大凶 の順です。凶が出ても、行動次第で運は開けます。</p>
+  <h2>よくある質問</h2>
+  <h3>何回でも引けますか？</h3>
+  <p>はい、無料で何度でも引けます。暇つぶしや友達との運試しにどうぞ。</p>
+  <p><a href="/tools">→ 他のツールを見る</a></p>
+  <Banner label="── 運試しのあとは、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  const FORTUNES = [
+    ['大吉', 6], ['中吉', 14], ['小吉', 18], ['吉', 24], ['末吉', 20], ['凶', 13], ['大凶', 5],
+  ];
+  const LOVE = ['理想の出会いが近い。笑顔を忘れずに','素直な一言が距離を縮める','焦らず待てば実を結ぶ','相手の立場で考えると吉','一歩踏み出す勇気が運を呼ぶ','過去より今を見て'];
+  const WORK = ['努力が認められる時。粘り強く','新しい挑戦が吉と出る','周囲の助けを借りて大成','慎重に進めば失敗なし','直感を信じて動くと吉','基本に立ち返ると道が開ける'];
+  const MONEY = ['思わぬ臨時収入の予感','浪費を控えれば蓄えが増す','投資は慎重に。学びが先','人への施しが巡り巡って吉','無駄を見直す好機','コツコツが最大の近道'];
+  const HEALTH = ['睡眠を大切に。絶好調へ','軽い運動が運気を上げる','食事のバランスが鍵','無理は禁物。休息も実力','水分と深呼吸でリセット','早寝早起きが幸運を呼ぶ'];
+  const ITEM = ['青いペン','古い本','丸い石','銀のアクセサリー','白いハンカチ','観葉植物','黒い傘','星型のお菓子','手書きのメモ','小さな鏡'];
+  const COLOR = ['群青','深紅','黄金','翡翠','漆黒','銀鼠','藍','山吹'];
+  const wpick = (arr) => { const t = arr.reduce((s, x) => s + x[1], 0); let r = Math.random() * t; for (const [v, w] of arr) { if ((r -= w) < 0) return v; } return arr[0][0]; };
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const $ = (s) => document.querySelector(s);
+  function draw() {
+    const f = wpick(FORTUNES);
+    $('#fortune').textContent = f;
+    $('#msg').innerHTML = '';
+    const rows = [['恋愛', pick(LOVE)], ['仕事・学業', pick(WORK)], ['金運', pick(MONEY)], ['健康', pick(HEALTH)],
+      ['ラッキーアイテム', pick(ITEM)], ['ラッキーカラー', pick(COLOR)], ['ラッキーナンバー', String(Math.floor(Math.random() * 9) + 1)]];
+    for (const [k, v] of rows) { const tr = document.createElement('tr'); tr.innerHTML = '<td></td><td></td>'; tr.children[0].textContent = k; tr.children[1].textContent = v; $('#msg').appendChild(tr); }
+    $('#result').hidden = false; $('#draw').hidden = true;
+  }
+  $('#draw').addEventListener('click', draw);
+  $('#again').addEventListener('click', draw);
+</script>

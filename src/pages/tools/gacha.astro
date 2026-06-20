@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+
+const title = 'ガチャシミュレーター｜排出率を設定して引ける無料ガチャ確率体験';
+const description = 'ソシャゲのガチャを排出率を設定して引けるガチャシミュレーター。SSR/SR/Rの確率を入れて1回・10連を回し、SSR排出率や天井までの体感を無料でシミュレーション。';
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'ガチャシミュレーター', href: '/tools/gacha' } ];
+const url = new URL('/tools/gacha', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'ガチャシミュレーター', url, applicationCategory:'GameUtilityApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">ガチャシミュレーター</h1>
+  <p class="post-meta">排出率を設定して回せる無料ガチャ。SSRの出やすさ・天井までの体感をシミュレーション。</p>
+  <p>SSR・SR・Rの<strong>排出率を自分で設定</strong>して、1回／10連でガチャを回せるシミュレーターです。何連でSSRが出るか、爆死や神引きの体感を無料で試せます。</p>
+
+  <section class="tool" aria-label="ガチャシミュレーター">
+    <div class="row2">
+      <div class="field"><label>SSR 排出率 (%)</label><input id="ssr" type="number" value="3" min="0" max="100" step="0.1" /></div>
+      <div class="field"><label>SR 排出率 (%)</label><input id="sr" type="number" value="12" min="0" max="100" step="0.1" /></div>
+    </div>
+    <p style="color:#9aa3c0;font-size:12px;margin:-4px 0 12px">残りが R（ノーマル）になります。</p>
+    <div class="row2">
+      <button id="pull1" class="gen-btn">🎲 1回引く</button>
+      <button id="pull10" class="gen-btn">🎲 10連を引く</button>
+    </div>
+    <button id="reset" class="gen-btn secondary" style="margin-top:10px">リセット</button>
+    <div id="results" class="gacha-grid"></div>
+    <div id="tally" class="gacha-tally"></div>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol><li>SSR・SRの排出率を入力（例: SSR 3%・SR 12%）</li><li>「1回引く」「10連を引く」を押す</li><li>累計の排出数とSSR排出率が下に表示されます</li></ol>
+  <h2>よくある質問</h2>
+  <h3>実際のゲームの結果に影響しますか？</h3>
+  <p>いいえ。これは確率を体感するためのシミュレーターで、実際のゲームとは無関係です。</p>
+  <p><a href="/tools">→ 他のツールを見る</a></p>
+  <Banner label="── 神引きの快感を、ネコの大バトルで ──" />
+</BaseLayout>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const results = $('#results'), tally = $('#tally');
+  let n = 0, ssrN = 0, srN = 0;
+  function pullOne() {
+    const ssr = parseFloat($('#ssr').value) || 0;
+    const sr = parseFloat($('#sr').value) || 0;
+    const r = Math.random() * 100;
+    if (r < ssr) return 'SSR';
+    if (r < ssr + sr) return 'SR';
+    return 'R';
+  }
+  function render(items) {
+    results.innerHTML = '';
+    items.forEach((g, i) => {
+      const el = document.createElement('span');
+      el.className = 'gacha-chip ' + g;
+      el.textContent = g;
+      el.style.animationDelay = (i * 0.04) + 's';
+      results.appendChild(el);
+    });
+    const rate = n ? (ssrN / n * 100).toFixed(2) : '0.00';
+    tally.innerHTML = `累計 <b>${n}</b> 連 ｜ SSR <b>${ssrN}</b> ｜ SR ${srN} ｜ 実測SSR率 <b>${rate}%</b>`;
+  }
+  function pull(count) {
+    const items = [];
+    for (let i = 0; i < count; i++) { const g = pullOne(); items.push(g); n++; if (g === 'SSR') ssrN++; else if (g === 'SR') srN++; }
+    render(items);
+  }
+  $('#pull1').addEventListener('click', () => pull(1));
+  $('#pull10').addEventListener('click', () => pull(10));
+  $('#reset').addEventListener('click', () => { n = ssrN = srN = 0; results.innerHTML = ''; tally.innerHTML = ''; });
+</script>

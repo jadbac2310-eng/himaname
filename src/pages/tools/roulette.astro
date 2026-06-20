@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Banner from '../../components/Banner.astro';
+import { SITE } from '../../consts';
+
+const title = 'ルーレットメーカー｜選択肢を入れて回す無料の決定ルーレット';
+const description = '好きな選択肢を入れて回せる無料の決定ルーレット。順番決め・ランチ・罰ゲーム・席替えなど、迷ったときにくるっと回してランダムに決定。スマホでそのまま使えます。';
+const crumbs = [ { name: 'ホーム', href: '/' }, { name: 'ツール', href: '/tools' }, { name: 'ルーレットメーカー', href: '/tools/roulette' } ];
+const url = new URL('/tools/roulette', SITE.url).href;
+const webApp = { '@context':'https://schema.org','@type':'WebApplication', name:'ルーレットメーカー', url, applicationCategory:'UtilitiesApplication', operatingSystem:'Web', inLanguage:'ja', description, offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}, publisher:{'@id':`${SITE.url}/#organization`} };
+const breadcrumb = { '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs.map((c,i)=>({'@type':'ListItem',position:i+1,name:c.name,item:new URL(c.href,SITE.url).href})) };
+---
+<BaseLayout title={title} description={description} jsonLd={[webApp, breadcrumb]} bodyClass="theme-dark">
+  <Breadcrumbs items={crumbs} />
+  <h1 class="post-title">ルーレットメーカー</h1>
+  <p class="post-meta">選択肢を入れてくるっと回す。順番決め・ランチ・罰ゲームに。</p>
+  <p>好きな<strong>選択肢を入力して回せる決定ルーレット</strong>です。迷ったときにボタンを押すと、ランダムに1つ選んでくれます。</p>
+
+  <section class="tool" aria-label="ルーレット">
+    <div class="field"><label>選択肢（1行に1つ）</label><textarea id="opts">ラーメン
+カレー
+寿司
+パスタ
+焼肉</textarea></div>
+    <div class="wheel-wrap"><span class="wheel-pin">▼</span><svg id="wheel" class="wheel" viewBox="0 0 200 200"></svg></div>
+    <div id="result" class="wheel-result"></div>
+    <button id="spin" class="gen-btn">🎡 ルーレットを回す</button>
+  </section>
+
+  <Banner />
+
+  <h2>使い方</h2>
+  <ol><li>選択肢を1行に1つ入力（2個以上）</li><li>「ルーレットを回す」を押す</li><li>止まった項目が結果です</li></ol>
+  <h2>こんな時に</h2>
+  <p>ランチ決め・順番決め・席替え・罰ゲーム・どっちにするか迷ったとき。スマホでみんなで使えます。</p>
+  <p><a href="/tools">→ 他のツールを見る</a></p>
+  <Banner label="── 何をするか決まったら、ネコの大バトルへ ──" />
+</BaseLayout>
+
+<script>
+  const COLORS = ['#6366f1','#a855f7','#06b6d4','#f472b6','#fbbf24','#38bdf8','#c084fc','#34d399'];
+  const $ = (s) => document.querySelector(s);
+  const wheel = $('#wheel'), resultEl = $('#result');
+  let spin = 0, spinning = false;
+  const getOpts = () => $('#opts').value.split('\n').map((s) => s.trim()).filter(Boolean);
+  function pt(a, r) { const rad = a * Math.PI / 180; return [100 + r * Math.sin(rad), 100 - r * Math.cos(rad)]; }
+  function build() {
+    const opts = getOpts(); const n = opts.length; wheel.innerHTML = '';
+    if (n < 2) { wheel.innerHTML = '<text x="100" y="104" text-anchor="middle" fill="#9aa3c0" font-size="11">2個以上入力</text>'; return; }
+    const seg = 360 / n;
+    opts.forEach((o, i) => {
+      const a1 = i * seg, a2 = (i + 1) * seg, large = seg > 180 ? 1 : 0;
+      const [x1, y1] = pt(a1, 98), [x2, y2] = pt(a2, 98);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M100,100 L${x1.toFixed(2)},${y1.toFixed(2)} A98,98 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z`);
+      path.setAttribute('fill', COLORS[i % COLORS.length]); path.setAttribute('opacity', '.85');
+      wheel.appendChild(path);
+      const [tx, ty] = pt(a1 + seg / 2, 62);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', tx.toFixed(1)); t.setAttribute('y', ty.toFixed(1)); t.setAttribute('fill', '#fff');
+      t.setAttribute('font-size', n > 8 ? '7' : '9'); t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('transform', `rotate(${a1 + seg / 2} ${tx.toFixed(1)} ${ty.toFixed(1)})`);
+      t.textContent = o.length > 7 ? o.slice(0, 7) + '…' : o;
+      wheel.appendChild(t);
+    });
+  }
+  function doSpin() {
+    if (spinning) return; const opts = getOpts(); if (opts.length < 2) return;
+    spinning = true; resultEl.textContent = '';
+    const n = opts.length, seg = 360 / n, w = Math.floor(Math.random() * n);
+    const c = (w + 0.5) * seg, desired = (360 - c) % 360, cur = ((spin % 360) + 360) % 360;
+    spin += 360 * 5 + ((desired - cur + 360) % 360);
+    wheel.style.transform = `rotate(${spin}deg)`;
+    setTimeout(() => { resultEl.textContent = '▶ ' + opts[w]; spinning = false; }, 4300);
+  }
+  $('#opts').addEventListener('input', build);
+  $('#spin').addEventListener('click', doSpin);
+  build();
+</script>

@@ -15,6 +15,7 @@ rakko_run.log
 rakko_summary*.json
 rakko_picked_*.csv
 rakko_master_*.txt
+rakko_*analysis*.txt
 rakko_analysis.txt
 
 # os
