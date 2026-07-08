@@ -1,31 +1,30 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import { SITE } from '../../consts';
 
 const crumbs = [
   { name: 'ホーム', href: '/' },
   { name: 'ツール', href: '/tools' },
 ];
 const tools = [
-  { href: '/tools/rpg-name', title: 'RPG風 かっこいい名前ジェネレーター', desc: 'クラウド型・神話型・幻想造語の3系統。キャラ名やIDに。' },
-  { href: '/tools/guild-name', title: 'かっこいいギルド名メーカー', desc: 'ギルド名・チーム名・クラン名を英語＆ラテン語で。' },
-  { href: '/tools/futatsuna', title: '二つ名・異名ジェネレーター', desc: '「蒼炎の剣聖」「深淵を覗く者」中二な二つ名をよみがな付きで。' },
-  { href: '/tools/skill-name', title: '技名・必殺技メーカー', desc: '「滅却斬」「Crimson Fang」中二な技名・必殺技を。' },
-  { href: '/tools/team-name', title: 'チーム名・パーティー名ジェネレーター', desc: '「The Crimson Ravens」かっこいい英語のチーム名。' },
-  { href: '/tools/server-name', title: 'Discordサーバー名メーカー', desc: '「Velvet Lounge」おしゃれ・かわいいサーバー名。' },
-  { href: '/tools/player-id', title: 'ID・プレイヤーネームメーカー', desc: '「ShadowFox」おしゃれ＆かっこいいゲームID。' },
-  { href: '/tools/fancy-text', title: '文字装飾・フォント変換', desc: '𝓯𝓪𝓷𝓬𝔂なおしゃれ文字に変換。名前・SNSに。' },
-  { href: '/tools/gacha', title: 'ガチャシミュレーター', desc: '排出率を設定して回せる。SSR体感に。' },
-  { href: '/tools/omikuji', title: 'オンラインおみくじ', desc: 'タップで運勢・恋愛・金運を占う。暇つぶしに。' },
-  { href: '/tools/roulette', title: 'ルーレットメーカー', desc: '選択肢を入れて回す決定ルーレット。' },
-  { href: '/tools/amidakuji', title: 'あみだくじメーカー', desc: '名前と結果を入れて線をたどるあみだくじ。' },
+  { href: '/tools/rpg-name', title: 'RPG風 かっこいい名前メーカー', desc: 'クラウド型・神話型・幻想造語の3系統。キャラ名やIDにそのまま使える。' },
+  { href: '/tools/guild-name', title: 'かっこいいギルド名・クラン名メーカー', desc: 'ギルド名・チーム名・クラン名を英語＆ラテン語で強そうに。' },
+  { href: '/tools/futatsuna', title: '二つ名・異名メーカー（中二）', desc: '「蒼炎の剣聖」「深淵を覗く者」厨二な二つ名をよみがな付きで。' },
+  { href: '/tools/skill-name', title: '技名・必殺技メーカー', desc: '「滅却斬」「Crimson Fang」厨二でかっこいい必殺技を無限に。' },
+  { href: '/tools/team-name', title: 'チーム名・パーティー名メーカー', desc: '「The Crimson Ravens」かっこいい英語のチーム名・パーティー名。eスポーツにも。' },
+  { href: '/tools/server-name', title: 'Discordサーバー名メーカー', desc: '「Velvet Lounge」おしゃれ・かわいいサーバー名を読み付きで。' },
+  { href: '/tools/player-id', title: 'ID・プレイヤーネームメーカー', desc: '「ShadowFox」おしゃれ＆かっこいいゲームID・ユーザー名。' },
+  { href: '/tools/fancy-text', title: 'おしゃれ文字・フォント変換メーカー', desc: '𝓯𝓪𝓷𝓬𝔂な特殊文字に変換。名前・SNSにコピペするだけ。' },
+  { href: '/tools/gacha', title: 'ガチャシミュレーター（排出率設定）', desc: '排出率を自分で設定して10連。SSRの引き心地を体感。' },
+  { href: '/tools/omikuji', title: 'オンラインおみくじ（無料）', desc: 'タップで運勢・恋愛・金運を占う。暇つぶしに何度でも。' },
+  { href: '/tools/roulette', title: 'ルーレットメーカー', desc: '選択肢を入れて回す決定ルーレット。順番・罰ゲーム決めに。' },
+  { href: '/tools/amidakuji', title: 'あみだくじメーカー', desc: '人数を選ぶだけ。線をたどって結果が光るスマホ対応あみだくじ。' },
 ];
 ---
-<BaseLayout title={`無料ツール一覧 | ${SITE.name}`} description="かっこいい名前・ギルド名を作る無料ジェネレーター一覧。">
+<BaseLayout title="かっこいい名前メーカー全12種｜チーム名・ギルド名・技名も無料で生成" description="かっこいい名前を無料で作れるネーミングツールまとめ。RPGキャラ名・チーム名・パーティー名・ギルド名・クラン名・技名・必殺技・ゲームIDまで、ボタンひとつで何度でも生成できます。">
   <Breadcrumbs items={crumbs} />
-  <h1 class="post-title">無料ツール一覧</h1>
-  <p class="post-meta">かっこいい名前づくりを助ける無料ジェネレーター。</p>
+  <h1 class="post-title">かっこいい名前が作れる無料メーカー一覧</h1>
+  <p class="post-meta">RPG名・チーム名・パーティー名・ギルド名・技名まで。用途で選ぶ無料ネーミングツール12種。</p>
   <ul class="post-list">
     {tools.map((t) => (
       <li>
