@@ -19,7 +19,7 @@ pubDate: 2026-07-10
 
 重厚感があり、競馬の世界観にマッチした二つ名です。予想サイトのハンドルネームや馬券仲間への自己紹介にも映えます。
 
-[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21wgesyj)
+[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21imrv6r)
 
 | 二つ名 | 読み | 由来・意味 |
 |---|---|---|
