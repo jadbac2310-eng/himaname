@@ -25,7 +25,9 @@ const DRY_RUN = process.env.DRY_RUN === '1';
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-6';
 const IMAGE_MODEL = process.env.IMAGE_MODEL || 'gpt-image-1';
 const BANNER_IMG = process.env.BANNER_IMAGE_URL || '/images/game-banner.webp';
-const BANNER_URL = process.env.BANNER_LINK_URL || 'https://app.adjust.com/21imrv6r';
+// Adjust計測リンク。端末判定でApp Store/Google Playに自動振り分けされるため1本でよい。
+// 環境変数にすると設定漏れで古いリンクのまま記事が生成される事故が起きたため、意図的にハードコード。
+const BANNER_URL = 'https://app.adjust.com/21imrv6r';
 const BANNER_ALT = process.env.BANNER_ALT || 'ぼくとネコ｜おすすめネコゲー、いますぐダウンロード';
 const SITE_NAME = process.env.SITE_NAME || 'ひまつぶし・ネーミング研究所';
 const AUTHOR_NAME = `${SITE_NAME} 編集部`;

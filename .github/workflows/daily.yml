@@ -33,7 +33,6 @@ jobs:
           CLAUDE_MODEL: ${{ secrets.CLAUDE_MODEL }}
           IMAGE_MODEL: ${{ secrets.IMAGE_MODEL }}
           BANNER_IMAGE_URL: ${{ secrets.BANNER_IMAGE_URL }}
-          BANNER_LINK_URL: ${{ secrets.BANNER_LINK_URL }}
         run: npm run generate
 
       - name: Commit & push

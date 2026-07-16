@@ -41,15 +41,19 @@ npm run generate
 
 ### Vercel
 1. このリポジトリを Vercel にインポート（フレームワークは Astro 自動検出）
-2. Environment Variables に `SITE_URL` / `SITE_NAME` / `BANNER_IMAGE_URL` / `BANNER_LINK_URL` を設定
+2. Environment Variables に `SITE_URL` / `SITE_NAME` / `BANNER_IMAGE_URL` を設定
 
 ### GitHub Actions（自動投稿）
 リポジトリの Settings > Secrets に登録:
-`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,（任意）`CLAUDE_MODEL`, `IMAGE_MODEL`, `BANNER_IMAGE_URL`, `BANNER_LINK_URL`
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,（任意）`CLAUDE_MODEL`, `IMAGE_MODEL`, `BANNER_IMAGE_URL`
 
 Actions は記事を生成して push するだけ。ビルド＆公開は Vercel の Git 連携が担う。
 
 ## バナー
 `/public/images/game-banner.png` を置き、`.env`（および Vercel/Actions の環境変数）で
-`BANNER_IMAGE_URL` と `BANNER_LINK_URL`（UTM付き）を設定する。
+`BANNER_IMAGE_URL` を設定する。
 記事の上部・中盤・下部の3箇所に表示される。
+
+リンク先の Adjust 計測リンクは `src/components/Banner.astro` と `scripts/generate.mjs` に
+ハードコードしてある（環境変数だと設定漏れで古いリンクのまま配信される事故が起きたため）。
+変更する場合はこの2箇所と既存記事の Markdown を一括置換する。
