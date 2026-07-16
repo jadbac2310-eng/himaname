@@ -41,7 +41,7 @@ pubDate: 2026-07-05
 
 **Q3. 何かに「ハマる」とき、あなたの傾向は？**
 
-[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21wgesyj)
+[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21imrv6r)
 
 - A：感情移入できるものだけにハマる。
 - B：ジャンルの歴史や体系ごと理解したくなる。

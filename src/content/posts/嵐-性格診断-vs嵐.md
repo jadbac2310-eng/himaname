@@ -44,7 +44,7 @@ vs嵐でも個性が爆発していた嵐の5人。リーダー気質の大野�
 - B：天真爛漫・素直
 - C：分析・クール
 
-[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21wgesyj)
+[![ぼくとネコ｜おすすめネコゲー、いますぐダウンロード](/images/game-banner.webp)](https://app.adjust.com/21imrv6r)
 
 **Q6. 失敗したとき、どう立ち直る？**
 - A：しばらく一人で考えて自分なりに消化する
