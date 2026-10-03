@@ -122,16 +122,40 @@ async function genImage({ prompt, size, outPath }) {
   const { default: OpenAI } = await import('openai');
   const { default: sharp } = await import('sharp');
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const r = await openai.images.generate({ model: IMAGE_MODEL, prompt, size, n: 1 });
-  const b64 = r.data[0].b64_json;
+  // 既存IP名(ポケモン等)を含むと出力モデレーションで弾かれるため、汎用プロンプトで再試行し、
+  // それでも駄目なら画像なし(null)で続行する。ここで落ちるとキュー先頭が詰まり毎日失敗し続ける。
+  const prompts = Array.isArray(prompt) ? prompt : [prompt];
+  let b64;
+  for (const p of prompts) {
+    try {
+      const r = await openai.images.generate({ model: IMAGE_MODEL, prompt: p, size, n: 1 });
+      b64 = r.data[0].b64_json;
+      break;
+    } catch (e) {
+      if (e?.code !== 'moderation_blocked') throw e;
+      console.warn(`⚠ 画像がモデレーションでブロック: ${path.basename(outPath)} → 次のプロンプトで再試行`);
+    }
+  }
+  if (!b64) {
+    console.warn(`⚠ 画像生成をスキップ: ${path.basename(outPath)}`);
+    return null;
+  }
   // 次世代フォーマット(WebP)で配信してCWV/転送量を改善
   const webpPath = outPath.replace(/\.png$/, '.webp');
   await sharp(Buffer.from(b64, 'base64')).webp({ quality: 82 }).toFile(webpPath);
   return path.basename(webpPath);
 }
 
-function imgPrompt(keyword, kind) {
-  return `Flat, clean, minimal illustration for a Japanese blog about "${keyword}". White background, soft pastel accents, simple shapes, friendly. ${kind}. Absolutely no text, no letters, no words in the image.`;
+// [キーワード入り, キーワードなし汎用] の順で返す。genImage が前から順に試す。
+function imgPrompt(keyword, cluster, kind) {
+  const style = `Flat, clean, minimal illustration. White background, soft pastel accents, simple shapes, friendly. ${kind}. Only original generic characters; do not depict any existing copyrighted characters, mascots, logos or franchise designs. Absolutely no text, no letters, no words in the image.`;
+  const theme = cluster === 'ネーミング系'
+    ? 'brainstorming cool names, a notebook and sparkling ideas'
+    : 'a fun personality quiz, question marks, checkboxes and cute generic animals';
+  return [
+    `${style} Theme: a Japanese blog article about "${keyword}".`,
+    `${style} Theme: ${theme}.`,
+  ];
 }
 
 // ---------- メイン ----------
@@ -160,22 +184,24 @@ async function main() {
 
   // 画像（HERO + 記事中）
   const heroFile = await genImage({
-    prompt: imgPrompt(keyword, 'wide hero banner illustration'),
+    prompt: imgPrompt(keyword, cluster, 'wide hero banner illustration'),
     size: '1536x1024',
     outPath: path.join(IMG_DIR, `${slug}-hero.png`),
   });
   const inlineFile = await genImage({
-    prompt: imgPrompt(keyword, 'small square supporting illustration'),
+    prompt: imgPrompt(keyword, cluster, 'small square supporting illustration'),
     size: '1024x1024',
     outPath: path.join(IMG_DIR, `${slug}-inline.png`),
   });
 
   // 記事中に画像とバナーを差し込む
   const blocks = article.body.split(/\n{2,}/);
-  const inlineMd = `![${keyword}](/images/${inlineFile})`;
   const bannerMd = `[![${BANNER_ALT}](${BANNER_IMG})](${BANNER_URL})`;
-  if (blocks.length > 2) blocks.splice(2, 0, inlineMd);
-  else blocks.push(inlineMd);
+  if (inlineFile) {
+    const inlineMd = `![${keyword}](/images/${inlineFile})`;
+    if (blocks.length > 2) blocks.splice(2, 0, inlineMd);
+    else blocks.push(inlineMd);
+  }
   // バナーは早め（全体の約1/3地点・導入を読み終えた直後）に挿入。上部・下部バナーはレイアウト側で別途表示。
   const pos = Math.min(blocks.length, Math.max(3, Math.floor(blocks.length / 3)));
   blocks.splice(pos, 0, bannerMd);
@@ -195,7 +221,7 @@ async function main() {
     `keyword: ${JSON.stringify(keyword)}`,
     `cluster: ${JSON.stringify(cluster)}`,
     `author: ${JSON.stringify(AUTHOR_NAME)}`,
-    `heroImage: ${JSON.stringify(`/images/${heroFile}`)}`,
+    ...(heroFile ? [`heroImage: ${JSON.stringify(`/images/${heroFile}`)}`] : []),
     `pubDate: ${today}`,
     '---',
     '',
